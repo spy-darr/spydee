@@ -2,1447 +2,711 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Spydee</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:ital,wght@0,200;0,300;0,400;0,600;1,300&display=swap');
-
-/* ═══════════════════════════════
-   TOKENS
-═══════════════════════════════ */
-:root {
-  --navy:   #020b18;
-  --deep:   #040f1f;
-  --panel:  rgba(6,18,44,0.92);
-  --blue:   #1a8fff;
-  --glow:   rgba(26,143,255,0.4);
-  --gold:   #c9a84c;
-  --gold2:  #f0cc6e;
-  --text:   #d4e8ff;
-  --muted:  rgba(212,232,255,0.38);
-  --ok:     #00e676;
-  --warn:   #ffab00;
-  --danger: #ff1744;
-  --border: rgba(26,143,255,0.18);
-  --r: 12px;
-  --font-display: 'Rajdhani', sans-serif;
-  --font-body:    'Exo 2', sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@200;300;400;600&display=swap');
+:root{
+  --navy:#020b18;--blue:#1a8fff;--glow:rgba(26,143,255,.4);
+  --gold:#c9a84c;--gold2:#f0cc6e;--text:#d4e8ff;--muted:rgba(212,232,255,.38);
+  --ok:#00e676;--warn:#ffab00;--danger:#ff1744;--border:rgba(26,143,255,.18);
+  --panel:rgba(6,18,44,.92);--r:12px;
 }
-
-/* ═══════════════════════════════
-   RESET & BASE
-═══════════════════════════════ */
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html { height:100%; }
-body {
-  font-family: var(--font-body);
-  background: var(--navy);
-  color: var(--text);
-  min-height: 100%;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* layered background */
-body::before {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(26,143,255,0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 40% 30% at 80% 80%, rgba(201,168,76,0.05) 0%, transparent 50%);
-  pointer-events: none;
-}
-body::after {
-  content: '';
-  position: fixed; inset: 0; z-index: 0;
-  background-image:
-    linear-gradient(rgba(26,143,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(26,143,255,0.025) 1px, transparent 1px);
-  background-size: 44px 44px;
-  pointer-events: none;
-}
-
-/* ═══════════════════════════════
-   LAYOUT
-═══════════════════════════════ */
-.app {
-  position: relative; z-index: 1;
-  max-width: 780px;
-  margin: 0 auto;
-  padding: 20px 16px 100px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* ═══════════════════════════════
-   HEADER / ARC REACTOR
-═══════════════════════════════ */
-.header {
-  text-align: center;
-  padding: 24px 0 8px;
-}
-
-/* Clock */
-.clock-block { margin-bottom: 20px; }
-.time {
-  font-family: var(--font-display);
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
-  font-weight: 700;
-  color: var(--blue);
-  text-shadow: 0 0 30px var(--glow), 0 0 60px rgba(26,143,255,0.2);
-  letter-spacing: 0.08em;
-  line-height: 1;
-}
-.date-str {
-  font-size: 0.68rem;
-  color: var(--muted);
-  letter-spacing: 0.3em;
-  margin-top: 4px;
-  font-weight: 300;
-}
-
-/* Arc reactor */
-.arc {
-  width: 110px; height: 110px;
-  margin: 0 auto 18px;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-}
-.arc-ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 1px solid transparent;
-}
-.arc-ring:nth-child(1) {
-  border-color: rgba(26,143,255,0.5);
-  animation: arcSpin 8s linear infinite;
-  border-top-color: var(--blue);
-}
-.arc-ring:nth-child(2) {
-  inset: 8px;
-  border-color: rgba(201,168,76,0.3);
-  animation: arcSpin 14s linear infinite reverse;
-  border-right-color: var(--gold);
-}
-.arc-ring:nth-child(3) {
-  inset: 18px;
-  border-color: rgba(26,143,255,0.2);
-  animation: arcSpin 6s linear infinite;
-  border-bottom-color: rgba(26,143,255,0.6);
-}
-@keyframes arcSpin { to { transform: rotate(360deg); } }
-
-.arc-core {
-  position: relative; z-index: 2;
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(26,143,255,0.25) 0%, rgba(26,143,255,0.05) 70%);
-  border: 1px solid rgba(26,143,255,0.4);
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.3s;
-}
-.arc-core .label {
-  font-family: var(--font-display);
-  font-size: 1rem; font-weight: 700;
-  color: var(--blue);
-  text-shadow: 0 0 12px var(--glow);
-  letter-spacing: 0.05em;
-  user-select: none;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Exo 2',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(26,143,255,.12) 0%,transparent 60%)}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(26,143,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(26,143,255,.02) 1px,transparent 1px);
+  background-size:44px 44px}
+.app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:20px 16px 100px;display:flex;flex-direction:column;gap:12px}
+/* HEADER */
+header{text-align:center;padding:20px 0 10px}
+.clock{font-family:'Rajdhani',sans-serif;font-size:clamp(2rem,6vw,3.2rem);font-weight:700;color:var(--blue);text-shadow:0 0 24px var(--glow);letter-spacing:.06em}
+.date{font-size:.62rem;color:var(--muted);letter-spacing:.22em;margin-top:3px;font-weight:300}
+.ring{width:90px;height:90px;margin:12px auto;position:relative;display:flex;align-items:center;justify-content:center}
+.ring svg{position:absolute;inset:0}
+.r1{animation:spin 10s linear infinite}
+.r2{animation:spin 16s linear infinite reverse}
+.r3{animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.arc-core{position:relative;z-index:2;width:52px;height:52px;border-radius:50%;
+  background:radial-gradient(circle,rgba(26,143,255,.2) 0%,rgba(26,143,255,.04) 70%);
+  border:1px solid rgba(26,143,255,.4);display:flex;align-items:center;justify-content:center;
+  transition:all .3s;box-shadow:0 0 16px rgba(26,143,255,.12)}
+.arc-core span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--blue);text-shadow:0 0 10px var(--glow)}
 /* arc states */
-.arc.idle .arc-core   { box-shadow: 0 0 18px rgba(26,143,255,0.15); }
-.arc.wake .arc-core   { background: radial-gradient(circle,rgba(201,168,76,0.35) 0%,rgba(201,168,76,0.08) 70%); border-color:var(--gold); box-shadow:0 0 30px rgba(201,168,76,0.5); }
-.arc.think .arc-core  { background: radial-gradient(circle,rgba(255,171,0,0.25) 0%,transparent 70%); border-color:var(--warn); box-shadow:0 0 24px rgba(255,171,0,0.4); animation: arcThink 0.5s ease-in-out infinite alternate; }
-.arc.speak .arc-core  { background: radial-gradient(circle,rgba(0,230,118,0.3) 0%,transparent 70%); border-color:var(--ok); box-shadow:0 0 28px rgba(0,230,118,0.5); animation: arcSpeak 0.45s ease-in-out infinite alternate; }
-.arc.listen .arc-core { background: radial-gradient(circle,rgba(26,143,255,0.35) 0%,rgba(26,143,255,0.08) 70%); border-color:rgba(26,143,255,0.7); box-shadow:0 0 24px rgba(26,143,255,0.4); animation: arcListen 1.4s ease-in-out infinite; }
-.arc.record .arc-core { background:radial-gradient(circle,rgba(255,23,68,0.4) 0%,transparent 70%); border-color:var(--danger); box-shadow:0 0 30px rgba(255,23,68,0.5); animation: arcRecord 0.3s ease-in-out infinite alternate; }
-.arc.muted .arc-core  { opacity: 0.4; filter: saturate(0); }
-@keyframes arcThink  { from{transform:scale(1)}     to{transform:scale(1.06)} }
-@keyframes arcSpeak  { from{transform:scale(1)}     to{transform:scale(1.08)} }
-@keyframes arcListen { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
-@keyframes arcRecord { from{transform:scale(1)}     to{transform:scale(1.1)} }
-
-/* name + tag */
-.name {
-  font-family: var(--font-display);
-  font-size: clamp(1.8rem, 5.5vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--text);
-  text-shadow: 0 0 40px rgba(26,143,255,0.3);
-}
-.tagline {
-  font-size: 0.62rem;
-  color: var(--muted);
-  letter-spacing: 0.38em;
-  margin-top: 3px;
-  font-weight: 300;
-}
-
-/* env pill */
-.env-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 10px;
-  font-family: var(--font-display);
-  font-size: 0.6rem; letter-spacing: 0.14em; font-weight: 600;
-  padding: 4px 13px; border-radius: 20px; border: 1px solid;
-}
-.env-pill.sr  { color:var(--ok);   border-color:rgba(0,230,118,0.35);  background:rgba(0,230,118,0.06); }
-.env-pill.ptt { color:var(--warn); border-color:rgba(255,171,0,0.35);  background:rgba(255,171,0,0.06); }
-
-/* ═══════════════════════════════
-   STATUS ROW
-═══════════════════════════════ */
-.status-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: 16px; flex-wrap: wrap;
-}
-.sdot {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.6rem; color: var(--muted);
-  letter-spacing: 0.1em; font-weight: 400;
-}
-.dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(212,232,255,0.2); flex-shrink: 0;
-}
-.dot.on   { background: var(--ok);     box-shadow: 0 0 6px var(--ok);     animation: dotPulse 2s ease-in-out infinite; }
-.dot.warn { background: var(--warn);   box-shadow: 0 0 6px var(--warn); }
-.dot.off  { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
-@keyframes dotPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-/* ═══════════════════════════════
-   SETUP PANELS
-═══════════════════════════════ */
-/* file:// warning */
-.file-panel {
-  background: rgba(255,171,0,0.04);
-  border: 1px solid rgba(255,171,0,0.25);
-  border-radius: var(--r);
-  padding: 18px 20px;
-}
-.file-panel .ptitle { color: var(--warn); }
-.file-body { font-size: 0.7rem; line-height: 1.85; color: var(--text); margin-bottom: 14px; }
-.file-body strong { color: var(--warn); }
-.file-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-.file-opt {
-  background: rgba(26,143,255,0.04);
-  border: 1px solid rgba(26,143,255,0.12);
-  border-radius: 8px; padding: 10px 13px;
-  font-size: 0.68rem; line-height: 1.75; color: var(--text);
-}
-.file-opt strong { font-family: var(--font-display); font-size: 0.62rem; letter-spacing: 0.1em; color: var(--blue); display: block; margin-bottom: 2px; font-weight: 600; }
-.file-opt code { background: rgba(26,143,255,0.1); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-family: monospace; color: var(--ok); font-size: 0.68rem; }
-
-/* api key */
-.key-panel {
-  background: rgba(201,168,76,0.04);
-  border: 1px solid rgba(201,168,76,0.22);
-  border-radius: var(--r);
-  padding: 16px 18px;
-}
-.key-panel .ptitle { color: var(--gold); }
-.key-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.key-in {
-  flex: 1; min-width: 160px;
-  background: rgba(201,168,76,0.05);
-  border: 1px solid rgba(201,168,76,0.2);
-  border-radius: 8px; padding: 9px 13px;
-  font-family: monospace; font-size: 0.78rem;
-  color: var(--text); outline: none;
-  transition: border-color 0.2s;
-}
-.key-in:focus { border-color: var(--gold); }
-.key-in::placeholder { color: var(--muted); }
-.key-btn {
-  background: rgba(201,168,76,0.12);
-  border: 1px solid rgba(201,168,76,0.35);
-  border-radius: 8px; padding: 9px 15px;
-  color: var(--gold); font-family: var(--font-display);
-  font-size: 0.65rem; letter-spacing: 0.12em; font-weight: 700;
-  cursor: pointer; transition: all 0.2s; white-space: nowrap;
-}
-.key-btn:hover { background: rgba(201,168,76,0.2); }
-.key-note { font-size: 0.62rem; color: var(--muted); margin-top: 7px; line-height: 1.6; }
-.key-note a { color: var(--blue); text-decoration: none; }
-.key-note a:hover { text-decoration: underline; }
-.key-note.ok  { color: var(--ok); }
-.key-note.err { color: var(--danger); }
-
-/* ═══════════════════════════════
-   PANEL BASE
-═══════════════════════════════ */
-.card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 16px 18px;
-  backdrop-filter: blur(16px);
-  position: relative; overflow: hidden;
-}
-.card::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(26,143,255,0.03) 0%, transparent 55%);
-  pointer-events: none;
-}
-.ptitle {
-  font-family: var(--font-display);
-  font-size: 0.58rem; letter-spacing: 0.26em; font-weight: 600;
-  color: var(--muted); margin-bottom: 12px;
-  text-transform: uppercase;
-}
-
-/* ═══════════════════════════════
-   SPYDEE RESPONSE
-═══════════════════════════════ */
-.response-area {
-  min-height: 52px;
-  display: flex; align-items: center; justify-content: center;
-}
-.response-text {
-  font-family: var(--font-display);
-  font-size: clamp(0.9rem, 2.5vw, 1.15rem);
-  font-weight: 500;
-  color: var(--text);
-  text-align: center;
-  line-height: 1.5;
-  letter-spacing: 0.03em;
-  width: 100%;
-}
-.response-text.thinking {
-  color: var(--warn);
-  animation: thinkPulse 0.9s ease-in-out infinite;
-}
-@keyframes thinkPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-
-/* ═══════════════════════════════
-   PTT BUTTON (non-SR mode)
-═══════════════════════════════ */
-.ptt-area {
-  display: none;
-  flex-direction: column; align-items: center; gap: 10px;
-  margin-top: 8px;
-}
-.ptt-btn {
-  width: 72px; height: 72px; border-radius: 50%;
-  border: 2px solid var(--blue);
-  background: rgba(26,143,255,0.08);
-  color: var(--blue); font-size: 26px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.15s;
-  user-select: none; -webkit-user-select: none;
-}
-.ptt-btn:hover { background: rgba(26,143,255,0.18); }
-.ptt-btn.rec { background: rgba(255,23,68,0.18); border-color: var(--danger); color: var(--danger); box-shadow: 0 0 20px rgba(255,23,68,0.4); transform: scale(1.08); }
-.ptt-hint { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.16em; font-family: var(--font-display); font-weight: 600; }
-.ptt-heard { font-size: 0.72rem; color: var(--text); opacity: 0.65; font-style: italic; text-align: center; min-height: 16px; }
-
-/* wake btn (SR mode) */
-.wake-btn {
-  display: none;
-  align-items: center; gap: 8px;
-  margin: 10px auto 0; width: fit-content;
-  background: rgba(26,143,255,0.08);
-  border: 1px solid rgba(26,143,255,0.3);
-  border-radius: 30px; padding: 8px 20px;
-  font-family: var(--font-display); font-size: 0.68rem; font-weight: 600;
-  letter-spacing: 0.14em; color: var(--blue);
-  cursor: pointer; transition: all 0.2s;
-}
-.wake-btn:hover { background: rgba(26,143,255,0.16); }
-.wake-btn.on  { box-shadow: 0 0 16px rgba(26,143,255,0.2); }
-
-/* ═══════════════════════════════
-   HINTS
-═══════════════════════════════ */
-.hints {
-  background: rgba(26,143,255,0.03);
-  border: 1px solid rgba(26,143,255,0.08);
-  border-radius: 8px; padding: 10px 13px;
-  margin-top: 12px;
-}
-.hint-row { display: flex; gap: 8px; margin-bottom: 5px; font-size: 0.64rem; line-height: 1.65; align-items: flex-start; }
-.hint-row:last-child { margin-bottom: 0; }
-.hk { font-family: var(--font-display); font-size: 0.56rem; font-weight: 700; letter-spacing: 0.1em; color: var(--gold); background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2); padding: 1px 7px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
-.hv { color: var(--muted); }
-.hv em { color: var(--text); font-style: normal; }
-
-/* ═══════════════════════════════
-   CONVERSATION
-═══════════════════════════════ */
-.convo-scroll { max-height: 260px; overflow-y: auto; padding-right: 4px; }
-.convo-empty { font-size: 0.65rem; color: var(--muted); text-align: center; padding: 18px 0; letter-spacing: 0.12em; }
-.msg { margin-bottom: 14px; }
-.msg-who { font-family: var(--font-display); font-size: 0.55rem; font-weight: 700; letter-spacing: 0.15em; margin-bottom: 4px; }
-.msg-who.u { color: var(--gold2); }
-.msg-who.s { color: var(--blue); }
-.msg-txt { font-size: 0.75rem; color: var(--text); line-height: 1.7; padding-left: 10px; border-left: 2px solid; }
-.msg.u .msg-txt { border-color: rgba(201,168,76,0.3); }
-.msg.s .msg-txt { border-color: rgba(26,143,255,0.3); }
-
-/* ═══════════════════════════════
-   TEXT INPUT
-═══════════════════════════════ */
-.input-row { display: flex; gap: 8px; align-items: flex-end; }
-.msg-input {
-  flex: 1;
-  background: rgba(26,143,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px 14px;
-  font-family: var(--font-body); font-size: 0.8rem;
-  color: var(--text); resize: none; outline: none;
-  transition: border-color 0.2s; min-height: 44px; max-height: 120px;
-  line-height: 1.5;
-}
-.msg-input::placeholder { color: var(--muted); }
-.msg-input:focus { border-color: rgba(26,143,255,0.45); }
-.send-btn {
-  background: rgba(26,143,255,0.12);
-  border: 1px solid rgba(26,143,255,0.35);
-  border-radius: 10px; padding: 10px 16px;
-  color: var(--blue); font-family: var(--font-display);
-  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
-  cursor: pointer; transition: all 0.2s; white-space: nowrap;
-  height: 44px;
-}
-.send-btn:hover { background: rgba(26,143,255,0.22); }
-.send-btn:active { transform: scale(0.97); }
-.input-hint { font-size: 0.58rem; color: var(--muted); margin-top: 6px; }
-.input-hint em { color: rgba(26,143,255,0.6); font-style: normal; }
-
-/* ═══════════════════════════════
-   MEMORY STRIP
-═══════════════════════════════ */
-.memory-strip {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-bottom: 10px;
-}
-.mem-chip {
-  background: rgba(201,168,76,0.08);
-  border: 1px solid rgba(201,168,76,0.2);
-  border-radius: 20px; padding: 3px 10px;
-  font-size: 0.6rem; color: var(--gold);
-  font-family: var(--font-display); font-weight: 500;
-  letter-spacing: 0.08em;
-}
-.mem-empty { font-size: 0.63rem; color: var(--muted); font-style: italic; }
-
-/* ═══════════════════════════════
-   TASKS
-═══════════════════════════════ */
-.task-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
-.task-ct { font-family: var(--font-display); font-size: 0.58rem; font-weight: 700; color: var(--blue); background: rgba(26,143,255,0.1); border: 1px solid var(--border); padding: 2px 9px; border-radius: 20px; letter-spacing: 0.1em; }
-.ftabs { display: flex; gap: 6px; margin-bottom: 11px; flex-wrap: wrap; }
-.ftab { font-family: var(--font-display); font-size: 0.55rem; font-weight: 600; letter-spacing: 0.1em; padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); background: none; color: var(--muted); cursor: pointer; transition: all 0.2s; }
-.ftab.on { background: rgba(26,143,255,0.1); border-color: rgba(26,143,255,0.4); color: var(--blue); }
-.tlist { display: flex; flex-direction: column; gap: 7px; }
-.no-tasks { text-align: center; padding: 22px 0; color: var(--muted); font-size: 0.65rem; letter-spacing: 0.12em; line-height: 2.2; }
-.tc {
-  background: rgba(26,143,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 9px; padding: 11px 13px;
-  display: flex; align-items: flex-start; gap: 10px;
-  position: relative; overflow: hidden; transition: border-color 0.2s;
-}
-.tc:hover { border-color: rgba(26,143,255,0.28); }
-.tc::before { content: ''; position: absolute; left:0;top:0;bottom:0;width:3px;background:var(--blue);opacity:0.35; }
-.tc.urg::before  { background:var(--danger);opacity:1; }
-.tc.soon::before { background:var(--warn);opacity:1; }
-.tc.done { opacity: 0.32; }
-.tc.done::before { background:var(--ok);opacity:0.35; }
-.chk { width:16px;height:16px;border:1px solid var(--border);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .2s; }
-.chk:hover { border-color:var(--blue); }
-.chk.y { background:var(--ok);border-color:var(--ok); }
-.ck { font-size:9px;color:var(--navy);display:none; }
-.chk.y .ck { display:block; }
-.tb { flex:1;min-width:0; }
-.tt { font-size:0.76rem;color:var(--text);line-height:1.5;word-break:break-word; }
-.tc.done .tt { text-decoration:line-through;color:var(--muted); }
-.tm { display:flex;align-items:center;gap:7px;margin-top:4px;flex-wrap:wrap; }
-.ts { font-size:0.58rem;color:var(--muted); }
-.bdg { font-family:var(--font-display);font-size:0.52rem;font-weight:600;letter-spacing:0.08em;padding:1px 6px;border-radius:3px;border:1px solid; }
-.bu { color:var(--danger);border-color:rgba(255,23,68,0.28);background:rgba(255,23,68,0.07); }
-.bw { color:var(--warn);border-color:rgba(255,171,0,0.28);background:rgba(255,171,0,0.07); }
-.bn { color:var(--muted);border-color:var(--border); }
-.bd { color:var(--ok);border-color:rgba(0,230,118,0.28);background:rgba(0,230,118,0.07); }
-.tdel { background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0;opacity:0;transition:opacity .2s,color .2s;flex-shrink:0; }
-.tc:hover .tdel { opacity:1; }
-.tdel:hover { color:var(--danger); }
-
-/* ═══════════════════════════════
-   TOASTS
-═══════════════════════════════ */
-.toast-host { position:fixed;top:14px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:280px; }
-.toast { background:rgba(2,11,24,0.97);border:1px solid var(--blue);border-radius:11px;padding:12px 15px;box-shadow:0 0 24px rgba(26,143,255,0.18);animation:tIn .25s ease;pointer-events:all; }
-.toast.rem { border-color:var(--gold);box-shadow:0 0 24px rgba(201,168,76,0.25); }
-@keyframes tIn  { from{transform:translateX(108%);opacity:0}to{transform:translateX(0);opacity:1} }
-@keyframes tOut { from{transform:translateX(0);opacity:1}to{transform:translateX(108%);opacity:0} }
-.toast.out { animation:tOut .25s ease forwards; }
-.t-title { font-family:var(--font-display);font-size:0.62rem;font-weight:700;color:var(--blue);letter-spacing:0.1em;margin-bottom:3px; }
-.toast.rem .t-title { color:var(--gold); }
-.t-body  { font-size:0.68rem;color:var(--text);line-height:1.5; }
-.t-close { font-family:var(--font-display);font-size:0.54rem;color:var(--muted);cursor:pointer;margin-top:6px;display:block;font-weight:600;letter-spacing:0.08em; }
-.t-close:hover { color:var(--blue); }
-
-/* OVERLAY pulse */
-#overlay { display:none;position:fixed;inset:0;border:3px solid transparent;z-index:100;pointer-events:none;animation:ovGlow .9s ease-in-out infinite; }
-@keyframes ovGlow { 0%,100%{border-color:rgba(26,143,255,0.1)}50%{border-color:rgba(26,143,255,0.45)} }
-#overlay.show { display:block; }
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width:3px; }
-::-webkit-scrollbar-thumb { background:var(--border);border-radius:2px; }
-
-/* RESPONSIVE */
-@media(max-width:480px){
-  .app{padding:14px 12px 90px;gap:10px;}
-  .arc{width:90px;height:90px;}
-  .arc-core{width:46px;height:46px;}
-  .status-row{gap:10px;}
-  .sdot{font-size:0.55rem;}
-}
-/* btn dismiss */
-.dismiss-btn { background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;color:var(--muted);font-family:var(--font-display);font-size:0.55rem;font-weight:600;letter-spacing:0.1em;cursor:pointer;transition:all .2s; }
-.dismiss-btn:hover{color:var(--blue);border-color:rgba(26,143,255,0.4);}
+.arc-speaking .arc-core{background:radial-gradient(circle,rgba(0,230,118,.28) 0%,transparent 70%);border-color:var(--ok);box-shadow:0 0 26px rgba(0,230,118,.45);animation:pulse .5s ease-in-out infinite alternate}
+.arc-thinking .arc-core{background:radial-gradient(circle,rgba(255,171,0,.22) 0%,transparent 70%);border-color:var(--warn);box-shadow:0 0 20px rgba(255,171,0,.35);animation:pulse .65s ease-in-out infinite alternate}
+.arc-listening .arc-core{background:radial-gradient(circle,rgba(26,143,255,.3) 0%,rgba(26,143,255,.06) 70%);border-color:rgba(26,143,255,.7);box-shadow:0 0 22px rgba(26,143,255,.38);animation:pulse 1.4s ease-in-out infinite}
+.arc-wake .arc-core{background:radial-gradient(circle,rgba(201,168,76,.32) 0%,transparent 70%);border-color:var(--gold);box-shadow:0 0 28px rgba(201,168,76,.48)}
+.arc-recording .arc-core{background:radial-gradient(circle,rgba(255,23,68,.35) 0%,transparent 70%);border-color:var(--danger);box-shadow:0 0 26px rgba(255,23,68,.45);animation:pulse .3s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.07)}}
+h1{font-family:'Rajdhani',sans-serif;font-size:clamp(1.6rem,5.5vw,2.4rem);font-weight:700;letter-spacing:.15em;color:var(--text);text-shadow:0 0 36px rgba(26,143,255,.28)}
+.tag{font-size:.6rem;color:var(--muted);letter-spacing:.3em;margin-top:3px;font-weight:300}
+.env-pill{display:none;align-items:center;gap:6px;justify-content:center;margin-top:9px;font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.14em;padding:4px 13px;border-radius:20px;border:1px solid;width:fit-content;margin-inline:auto}
+.env-pill.show{display:flex}
+.env-pill.sr{color:var(--ok);border-color:rgba(0,230,118,.3);background:rgba(0,230,118,.06)}
+.env-pill.ptt{color:var(--warn);border-color:rgba(255,171,0,.3);background:rgba(255,171,0,.06)}
+/* STATUS */
+.status{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.sdot{display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--muted);letter-spacing:.08em}
+.dot{width:6px;height:6px;border-radius:50%;background:rgba(212,232,255,.18);flex-shrink:0}
+.dot.on{background:var(--ok);box-shadow:0 0 6px var(--ok);animation:dp 2s ease-in-out infinite}
+.dot.wn{background:var(--warn);box-shadow:0 0 6px var(--warn)}
+.dot.off{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.4}}
+/* PANELS */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;position:relative;overflow:hidden;backdrop-filter:blur(16px)}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(26,143,255,.025) 0%,transparent 50%);pointer-events:none}
+.plabel{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:600;letter-spacing:.24em;color:var(--muted);margin-bottom:12px;text-transform:uppercase}
+/* KEY SETUP */
+.key-wrap{background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.2);border-radius:var(--r);padding:15px 17px}
+.key-wrap .plabel{color:var(--gold)}
+.key-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.key-in{flex:1;min-width:150px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.18);border-radius:8px;padding:8px 12px;font-family:monospace;font-size:.76rem;color:var(--text);outline:none;transition:border-color .2s}
+.key-in:focus{border-color:var(--gold)}.key-in::placeholder{color:var(--muted)}
+.key-btn{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:8px 14px;color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.7rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;white-space:nowrap}
+.key-btn:hover{background:rgba(201,168,76,.2)}
+.key-note{font-size:.62rem;color:var(--muted);margin-top:7px;line-height:1.6}
+.key-note a{color:var(--blue);text-decoration:none}.key-note a:hover{text-decoration:underline}
+.key-note.ok{color:var(--ok)}.key-note.err{color:var(--danger)}
+/* VOICE */
+.resp-box{min-height:48px;display:flex;align-items:center;justify-content:center;padding:4px}
+.resp{font-family:'Rajdhani',sans-serif;font-size:clamp(.9rem,2.4vw,1.1rem);font-weight:500;color:var(--text);text-align:center;line-height:1.55;letter-spacing:.02em;width:100%}
+.resp.thinking{color:var(--warn)}
+/* WAKE BTN */
+.wake-btn{display:none;align-items:center;gap:8px;margin:10px auto 0;width:fit-content;background:rgba(26,143,255,.08);border:1px solid rgba(26,143,255,.3);border-radius:30px;padding:8px 18px;font-family:'Rajdhani',sans-serif;font-size:.7rem;font-weight:600;letter-spacing:.13em;color:var(--blue);cursor:pointer;transition:all .2s}
+.wake-btn:hover{background:rgba(26,143,255,.16)}
+.wake-btn.show{display:flex}
+.wake-btn.on{box-shadow:0 0 14px rgba(26,143,255,.2)}
+/* PTT */
+.ptt-area{display:none;flex-direction:column;align-items:center;gap:9px;margin-top:12px}
+.ptt-area.show{display:flex}
+.ptt-btn{width:72px;height:72px;border-radius:50%;border:2px solid var(--blue);background:rgba(26,143,255,.08);color:var(--blue);font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none}
+.ptt-btn:hover{background:rgba(26,143,255,.16)}
+.ptt-btn.rec{background:rgba(255,23,68,.2);border-color:var(--danger);color:var(--danger);box-shadow:0 0 20px rgba(255,23,68,.38);transform:scale(1.07)}
+.ptt-hint{font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;color:var(--muted);text-align:center}
+.ptt-heard{font-size:.7rem;color:var(--text);opacity:.7;font-style:italic;text-align:center;min-height:16px}
+/* HINTS */
+.hints{background:rgba(26,143,255,.025);border:1px solid rgba(26,143,255,.08);border-radius:9px;padding:10px 13px;margin-top:11px}
+.hrow{display:flex;gap:8px;margin-bottom:5px;font-size:.64rem;line-height:1.65;align-items:flex-start}
+.hrow:last-child{margin-bottom:0}
+.hk{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;letter-spacing:.1em;color:var(--gold);background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:1px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.hv{color:var(--muted)}.hv em{color:var(--text);font-style:normal}
+/* CONVO */
+.convo-scroll{max-height:230px;overflow-y:auto;padding-right:3px}
+.convo-empty{font-size:.64rem;color:var(--muted);text-align:center;padding:14px 0;letter-spacing:.1em}
+.msg{margin-bottom:12px}
+.mwho{font-family:'Rajdhani',sans-serif;font-size:.56rem;font-weight:700;letter-spacing:.13em;margin-bottom:3px}
+.mwho.u{color:var(--gold2)}.mwho.s{color:var(--blue)}
+.mtxt{font-size:.73rem;color:var(--text);line-height:1.68;padding-left:9px;border-left:2px solid}
+.msg.u .mtxt{border-color:rgba(201,168,76,.28)}.msg.s .mtxt{border-color:rgba(26,143,255,.28)}
+/* INPUT */
+.irow{display:flex;gap:8px;align-items:flex-end}
+.ti{flex:1;background:rgba(26,143,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 13px;font-family:'Exo 2',sans-serif;font-size:.8rem;color:var(--text);resize:none;outline:none;transition:border-color .2s;min-height:44px;max-height:120px;line-height:1.5}
+.ti::placeholder{color:var(--muted)}.ti:focus{border-color:rgba(26,143,255,.45)}
+.go-btn{background:rgba(26,143,255,.1);border:1px solid rgba(26,143,255,.32);border-radius:10px;padding:10px 14px;color:var(--blue);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.66rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;height:44px;white-space:nowrap}
+.go-btn:hover{background:rgba(26,143,255,.2)}.go-btn:active{transform:scale(.97)}
+.ifoot{font-size:.58rem;color:var(--muted);margin-top:6px}
+.ifoot em{color:rgba(26,143,255,.6);font-style:normal}
+/* MEMORY */
+.mem-strip{display:flex;gap:6px;flex-wrap:wrap}
+.mem-chip{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:3px 10px;font-size:.6rem;color:var(--gold);font-family:'Rajdhani',sans-serif;font-weight:600;letter-spacing:.08em}
+.mem-empty{font-size:.63rem;color:var(--muted);font-style:italic}
+/* TASKS */
+.thead{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.tct{font-family:'Rajdhani',sans-serif;font-size:.6rem;font-weight:700;color:var(--blue);background:rgba(26,143,255,.1);border:1px solid var(--border);padding:2px 9px;border-radius:20px;letter-spacing:.1em}
+.ftabs{display:flex;gap:6px;margin-bottom:11px;flex-wrap:wrap}
+.ftab{font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:600;letter-spacing:.1em;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .2s}
+.ftab.on{background:rgba(26,143,255,.1);border-color:rgba(26,143,255,.4);color:var(--blue)}
+.tlist{display:flex;flex-direction:column;gap:7px}
+.no-t{text-align:center;padding:20px 0;color:var(--muted);font-size:.64rem;letter-spacing:.1em;line-height:2.2}
+.tc{background:rgba(26,143,255,.03);border:1px solid var(--border);border-radius:9px;padding:11px 12px;display:flex;align-items:flex-start;gap:9px;position:relative;overflow:hidden;transition:border-color .2s}
+.tc:hover{border-color:rgba(26,143,255,.26)}
+.tc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--blue);opacity:.35}
+.tc.urg::before{background:var(--danger);opacity:1}.tc.soon::before{background:var(--warn);opacity:1}
+.tc.done{opacity:.32}.tc.done::before{background:var(--ok);opacity:.35}
+.chk{width:15px;height:15px;border:1px solid var(--border);border-radius:3px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .2s}
+.chk:hover{border-color:var(--blue)}.chk.y{background:var(--ok);border-color:var(--ok)}
+.ck{font-size:9px;color:var(--navy);display:none}.chk.y .ck{display:block}
+.tb{flex:1;min-width:0}
+.tt{font-size:.76rem;color:var(--text);line-height:1.5;word-break:break-word}
+.tc.done .tt{text-decoration:line-through;color:var(--muted)}
+.tm{display:flex;align-items:center;gap:7px;margin-top:4px;flex-wrap:wrap}
+.ts{font-size:.58rem;color:var(--muted)}
+.bdg{font-family:'Rajdhani',sans-serif;font-size:.56rem;font-weight:700;letter-spacing:.08em;padding:1px 6px;border-radius:3px;border:1px solid}
+.bu{color:var(--danger);border-color:rgba(255,23,68,.28);background:rgba(255,23,68,.07)}
+.bw{color:var(--warn);border-color:rgba(255,171,0,.28);background:rgba(255,171,0,.07)}
+.bn{color:var(--muted);border-color:var(--border)}
+.bd{color:var(--ok);border-color:rgba(0,230,118,.28);background:rgba(0,230,118,.07)}
+.tdel{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0;opacity:0;transition:opacity .2s,color .2s;flex-shrink:0}
+.tc:hover .tdel{opacity:1}.tdel:hover{color:var(--danger)}
+/* TOASTS */
+.toasts{position:fixed;top:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none;max-width:278px}
+.toast{background:rgba(2,11,24,.97);border:1px solid var(--blue);border-radius:11px;padding:11px 14px;box-shadow:0 0 20px rgba(26,143,255,.14);animation:tIn .24s ease;pointer-events:all}
+.toast.rem{border-color:var(--gold);box-shadow:0 0 20px rgba(201,168,76,.22)}
+@keyframes tIn{from{transform:translateX(106%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tOut{from{transform:translateX(0);opacity:1}to{transform:translateX(106%);opacity:0}}
+.toast.out{animation:tOut .24s ease forwards}
+.thd{font-family:'Rajdhani',sans-serif;font-size:.64rem;font-weight:700;color:var(--blue);letter-spacing:.09em;margin-bottom:3px}
+.toast.rem .thd{color:var(--gold)}
+.tbd{font-size:.68rem;color:var(--text);line-height:1.5}
+.tdis{font-family:'Rajdhani',sans-serif;font-size:.56rem;color:var(--muted);cursor:pointer;margin-top:5px;display:block;font-weight:600;letter-spacing:.08em}
+.tdis:hover{color:var(--blue)}
+/* FILE WARN */
+.fw{background:rgba(255,171,0,.04);border:1px solid rgba(255,171,0,.24);border-radius:var(--r);padding:15px 17px}
+.fw .plabel{color:var(--warn)}
+.fw-body{font-size:.7rem;line-height:1.85;color:var(--text);margin-bottom:12px}
+.fw-body strong{color:var(--warn)}
+.fw-opts{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.fw-opt{background:rgba(26,143,255,.04);border:1px solid rgba(26,143,255,.1);border-radius:8px;padding:9px 12px;font-size:.68rem;line-height:1.75;color:var(--text)}
+.fw-opt strong{font-family:'Rajdhani',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;color:var(--blue);display:block;margin-bottom:2px}
+.fw-opt code{background:rgba(26,143,255,.1);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:monospace;color:var(--ok);font-size:.68rem}
+.fw-dis{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;color:var(--muted);font-family:'Rajdhani',sans-serif;font-size:.58rem;font-weight:600;letter-spacing:.1em;cursor:pointer;transition:all .2s}
+.fw-dis:hover{color:var(--blue);border-color:rgba(26,143,255,.4)}
+/* OVERLAY */
+#ov{display:none;position:fixed;inset:0;border:3px solid transparent;z-index:100;pointer-events:none;animation:og .85s ease-in-out infinite}
+@keyframes og{0%,100%{border-color:rgba(26,143,255,.1)}50%{border-color:rgba(26,143,255,.44)}}
+#ov.show{display:block}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+@media(max-width:480px){.app{padding:12px 11px 90px;gap:9px}}
 </style>
 </head>
 <body>
-<div id="overlay"></div>
-<div class="toast-host" id="toasts"></div>
-
+<div id="ov"></div>
+<div class="toasts" id="toasts"></div>
 <div class="app">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="clock-block">
-      <div class="time" id="time">00:00:00</div>
-      <div class="date-str" id="dateStr">LOADING...</div>
-    </div>
-
-    <div class="arc idle" id="arc" onclick="onArcClick()">
-      <div class="arc-ring"></div>
-      <div class="arc-ring"></div>
-      <div class="arc-ring"></div>
-      <div class="arc-core">
-        <span class="label" id="arcLabel">S</span>
-      </div>
-    </div>
-
-    <div class="name">SPYDEE</div>
-    <div class="tagline">PERSONAL INTELLIGENCE · ALWAYS HERE</div>
-    <div id="envPill" class="env-pill sr" style="display:none"></div>
+<header>
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="date" id="date">...</div>
+  <div class="ring" id="arcWrap">
+    <svg class="r1" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="45" r="42" stroke="rgba(26,143,255,.18)" stroke-width="1" stroke-dasharray="5 7"/></svg>
+    <svg class="r2" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="45" r="37" stroke="rgba(26,143,255,.42)" stroke-width=".6" stroke-dasharray="13 5"/></svg>
+    <svg class="r3" viewBox="0 0 90 90" fill="none"><circle cx="45" cy="45" r="30" stroke="rgba(0,110,255,.2)" stroke-width=".5" stroke-dasharray="3 9"/></svg>
+    <div class="arc-core"><span>S</span></div>
   </div>
+  <h1>SPYDEE</h1>
+  <div class="tag">PERSONAL INTELLIGENCE &bull; ALWAYS HERE</div>
+  <div class="env-pill" id="envPill"></div>
+</header>
 
-  <!-- STATUS -->
-  <div class="status-row">
-    <div class="sdot"><div class="dot on"></div>ONLINE</div>
-    <div class="sdot"><div class="dot" id="dMic"></div><span id="sMic">MIC STANDBY</span></div>
-    <div class="sdot"><div class="dot" id="dAI"></div><span id="sAI">AI OFFLINE</span></div>
-    <div class="sdot"><div class="dot" id="dNtf"></div><span id="sNtf">NOTIFICATIONS</span></div>
-    <div class="sdot"><div class="dot on"></div><span id="sTask">0 TASKS</span></div>
+<div class="status">
+  <div class="sdot"><div class="dot on"></div>ONLINE</div>
+  <div class="sdot"><div class="dot" id="dMic"></div><span id="sMic">MIC STANDBY</span></div>
+  <div class="sdot"><div class="dot" id="dAI"></div><span id="sAI">AI OFFLINE</span></div>
+  <div class="sdot"><div class="dot" id="dNtf"></div><span id="sNtf">NOTIFICATIONS</span></div>
+  <div class="sdot"><div class="dot on"></div><span id="sTask">0 TASKS</span></div>
+</div>
+
+<!-- FILE WARNING -->
+<div class="fw" id="fw" style="display:none">
+  <div class="plabel">// ONE-TIME SETUP NEEDED</div>
+  <div class="fw-body">You opened Spydee as a <strong>file://</strong> URL. Browsers block API calls from files. Serve it over HTTP once and everything works permanently.</div>
+  <div class="fw-opts">
+    <div class="fw-opt"><strong>PYTHON (built-in on Mac/Linux)</strong>Open Terminal in Spydee's folder, run <code>python3 -m http.server 8080</code> then open <code>http://localhost:8080/spydee.html</code></div>
+    <div class="fw-opt"><strong>VS CODE LIVE SERVER</strong>Install <code>Live Server</code> extension, right-click the file, click <code>Open with Live Server</code></div>
+    <div class="fw-opt"><strong>MOBILE / SHARE</strong>Drop the file on <code>app.netlify.com/drop</code> for a free permanent URL on any device</div>
   </div>
+  <button class="fw-dis" onclick="g('fw').style.display='none';localStorage.setItem('fw','1')">ALREADY ON HTTP - DISMISS</button>
+</div>
 
-  <!-- FILE:// PANEL -->
-  <div class="file-panel" id="filePanel" style="display:none">
-    <div class="ptitle">// ONE-TIME SETUP — SERVE OVER HTTP FOR AI TO WORK</div>
-    <div class="file-body">
-      You opened Spydee directly as a file. Browsers block API calls from <strong>file://</strong> for security — serve it over HTTP once and it works permanently everywhere.
-    </div>
-    <div class="file-opts">
-      <div class="file-opt">
-        <strong>PYTHON (built-in — easiest)</strong>
-        Open Terminal in Spydee's folder → run <code>python3 -m http.server 8080</code> → open <code>http://localhost:8080/spydee.html</code>
-      </div>
-      <div class="file-opt">
-        <strong>VS CODE LIVE SERVER</strong>
-        Install the <code>Live Server</code> extension → right-click the file → <code>Open with Live Server</code>
-      </div>
-      <div class="file-opt">
-        <strong>MOBILE / SHARE WITH ANYONE</strong>
-        Drop the file on <code>app.netlify.com/drop</code> → free permanent URL that works on every device
-      </div>
-    </div>
-    <button class="dismiss-btn" onclick="dismissFile()">ALREADY ON HTTP — DISMISS</button>
+<!-- API KEY -->
+<div class="key-wrap">
+  <div class="plabel">// GROQ AI &mdash; FREE KEY AT console.groq.com/keys</div>
+  <div class="key-row">
+    <input class="key-in" id="keyIn" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
+    <button class="key-btn" onclick="saveKey()">CONNECT &#9654;</button>
   </div>
+  <div class="key-note" id="keyNote">Get your free key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> &bull; Stored locally &bull; Sent only to Groq</div>
+</div>
 
-  <!-- API KEY -->
-  <div class="key-panel">
-    <div class="ptitle">// GROQ AI — FREE KEY AT console.groq.com/keys</div>
-    <div class="key-row">
-      <input class="key-in" id="keyIn" type="password"
-        placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx"
-        autocomplete="off" spellcheck="false"/>
-      <button class="key-btn" onclick="saveKey()">CONNECT ▶</button>
-    </div>
-    <div class="key-note" id="keyNote">
-      Get your free key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>
-      · Stored locally · Sent only to Groq
-    </div>
+<!-- VOICE -->
+<div class="card">
+  <div class="plabel" id="vLabel">// VOICE INTERFACE</div>
+  <div class="resp-box">
+    <div class="resp" id="resp">All systems online, Spydarr. Spydee is here &mdash; what do you need?</div>
   </div>
-
-  <!-- VOICE / RESPONSE CARD -->
-  <div class="card">
-    <div class="ptitle" id="vLabel">// VOICE INTERFACE — INITIALIZING</div>
-
-    <div class="response-area">
-      <div class="response-text" id="resp"></div>
-    </div>
-
-    <!-- SR mode: click arc to mute -->
-    <button class="wake-btn" id="wakeBtn" onclick="toggleMute()">
-      <span>🎙</span><span id="wakeLbl">CLICK TO ACTIVATE</span>
-    </button>
-
-    <!-- PTT mode -->
-    <div class="ptt-area" id="pttArea">
-      <div class="ptt-btn" id="pttBtn">🎙</div>
-      <div class="ptt-hint" id="pttHint">HOLD TO SPEAK · RELEASE TO SEND</div>
-      <div class="ptt-heard" id="pttHeard"></div>
-    </div>
-
-    <div class="hints">
-      <div class="hint-row"><span class="hk">WAKE</span><span class="hv">Say <em>"Hey Spydee"</em> then your full command in one go</span></div>
-      <div class="hint-row"><span class="hk">REMIND</span><span class="hv"><em>"Hey Spydee, remind me to take meds in 20 minutes"</em></span></div>
-      <div class="hint-row"><span class="hk">ASK</span><span class="hv"><em>"Hey Spydee, what should I work on today?"</em></span></div>
-      <div class="hint-row"><span class="hk">MEMORY</span><span class="hv"><em>"Hey Spydee, remember I prefer tea over coffee"</em></span></div>
-    </div>
+  <button class="wake-btn" id="wakeBtn" onclick="toggleMute()">
+    <span>&#127897;</span><span id="wakeLbl">CLICK TO ACTIVATE</span>
+  </button>
+  <div class="ptt-area" id="pttArea">
+    <div class="ptt-btn" id="pttBtn">&#127897;</div>
+    <div class="ptt-hint" id="pttHint">HOLD TO SPEAK &bull; RELEASE TO SEND</div>
+    <div class="ptt-heard" id="pttHeard"></div>
   </div>
-
-  <!-- CONVERSATION -->
-  <div class="card">
-    <div class="ptitle">// CONVERSATION</div>
-    <div class="convo-scroll" id="convo">
-      <div class="convo-empty">◈ No conversations yet — say hello or type below</div>
-    </div>
+  <div class="hints">
+    <div class="hrow"><span class="hk">WAKE</span><span class="hv">Say <em>"Hey Spydee"</em> then your full command in one go</span></div>
+    <div class="hrow"><span class="hk">REMIND</span><span class="hv"><em>"Hey Spydee, remind me to take meds in 20 minutes"</em></span></div>
+    <div class="hrow"><span class="hk">ASK</span><span class="hv"><em>"Hey Spydee, what should I work on today?"</em></span></div>
+    <div class="hrow"><span class="hk">MEMORY</span><span class="hv"><em>"Hey Spydee, remember I prefer working at night"</em></span></div>
   </div>
+</div>
 
-  <!-- TEXT INPUT -->
-  <div class="card">
-    <div class="ptitle">// TYPE TO SPYDEE</div>
-    <div class="input-row">
-      <textarea class="msg-input" id="msgIn" rows="1"
-        placeholder="Ask anything, set a reminder, or just chat..."></textarea>
-      <button class="send-btn" onclick="sendText()">SEND ▶</button>
-    </div>
-    <div class="input-hint"><em>Enter</em> to send · <em>Shift+Enter</em> for new line</div>
-  </div>
+<!-- CONVERSATION -->
+<div class="card">
+  <div class="plabel">// CONVERSATION</div>
+  <div class="convo-scroll" id="convo"><div class="convo-empty">No conversations yet</div></div>
+</div>
 
-  <!-- MEMORY -->
-  <div class="card">
-    <div class="ptitle">// SPYDEE KNOWS ABOUT YOU</div>
-    <div class="memory-strip" id="memStrip">
-      <span class="mem-empty">Nothing stored yet — Spydee will learn as you talk</span>
-    </div>
+<!-- TEXT INPUT -->
+<div class="card">
+  <div class="plabel">// TYPE TO SPYDEE</div>
+  <div class="irow">
+    <textarea class="ti" id="ti" rows="1" placeholder="Ask anything, set a reminder, or just chat..."></textarea>
+    <button class="go-btn" onclick="sendText()">SEND</button>
   </div>
+  <div class="ifoot"><em>Enter</em> to send &bull; <em>Shift+Enter</em> new line</div>
+</div>
 
-  <!-- TASKS -->
-  <div class="card">
-    <div class="task-head">
-      <div class="ptitle" style="margin:0">// TASKS & REMINDERS</div>
-      <div class="task-ct" id="taskCt">0 ACTIVE</div>
-    </div>
-    <div class="ftabs">
-      <button class="ftab on" onclick="filt('all',this)">ALL</button>
-      <button class="ftab" onclick="filt('pending',this)">PENDING</button>
-      <button class="ftab" onclick="filt('done',this)">DONE</button>
-    </div>
-    <div class="tlist" id="tlist">
-      <div class="no-tasks">◈ No tasks yet</div>
-    </div>
+<!-- MEMORY -->
+<div class="card">
+  <div class="plabel">// SPYDEE KNOWS ABOUT YOU</div>
+  <div class="mem-strip" id="memStrip"><span class="mem-empty">Nothing stored yet &mdash; Spydee learns as you talk</span></div>
+</div>
+
+<!-- TASKS -->
+<div class="card">
+  <div class="thead">
+    <div class="plabel" style="margin:0">// TASKS &amp; REMINDERS</div>
+    <div class="tct" id="tct">0 ACTIVE</div>
   </div>
+  <div class="ftabs">
+    <button class="ftab on" onclick="filt('all',this)">ALL</button>
+    <button class="ftab" onclick="filt('pending',this)">PENDING</button>
+    <button class="ftab" onclick="filt('done',this)">DONE</button>
+  </div>
+  <div class="tlist" id="tlist"><div class="no-t">No tasks yet</div></div>
+</div>
 
 </div><!-- /app -->
 
 <script>
 'use strict';
+// IDENTITY: display="SPYDEE", TTS "Spydee"=Spidee, "Spydarr"=Spider
+var SELF='Spydee', USER='Spydarr';
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+var HAS_SR=!!SR;
+var IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+var IS_FF=/Firefox\//.test(navigator.userAgent);
+var IS_FILE=location.protocol==='file:';
+var IS_MOB=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-/* ═══════════════════════════════════════════════════
-   IDENTITY
-   Screen always shows "SPYDEE"
-   TTS: "Spydee" → pronounced "Spidee"
-         "Spydarr" → pronounced "Spider"
-═══════════════════════════════════════════════════ */
-const SELF = 'Spydee';       // TTS says "Spidee"
-const USER = 'Spydarr';      // TTS says "Spider"
+// STATE
+var groqKey=localStorage.getItem('sk')||'';
+var tasks=JSON.parse(localStorage.getItem('st')||'[]');
+var memory=JSON.parse(localStorage.getItem('sm')||'[]');
+var hist=[], filtMode='all', timers={};
+var rec=null, listening=false, muted=false, rstT=null;
+var pttOn=false, pttStream=null, pttRec=null, pttChunks=[];
+var actx=null, analyser=null, rafId=null;
 
-/* ═══════════════════════════════════════════════════
-   ENVIRONMENT
-═══════════════════════════════════════════════════ */
-const SR_CLS  = window.SpeechRecognition || window.webkitSpeechRecognition;
-const HAS_SR  = !!SR_CLS;
-const IS_IOS  = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-const IS_FF   = /Firefox\//.test(navigator.userAgent);
-const IS_EDGE = /Edg\//.test(navigator.userAgent);
-const IS_MOB  = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-const IS_FILE = location.protocol === 'file:';
+// HELPERS
+function g(id){return document.getElementById(id)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function setArc(s){var w=g('arcWrap');w.className='ring '+(s?'arc-'+s:'')}
+function setResp(t,thinking){var el=g('resp');el.textContent=t;el.className='resp'+(thinking?' thinking':'')}
+function setMic(cls,txt){g('dMic').className='dot '+cls;g('sMic').textContent=txt}
+function setAI(ok){g('dAI').className='dot '+(ok?'on':'wn');g('sAI').textContent=ok?'AI ONLINE':'AI OFFLINE'}
 
-/* ═══════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════ */
-let groqKey   = localStorage.getItem('s_key') || '';
-let tasks     = JSON.parse(localStorage.getItem('s_tasks') || '[]');
-let memory    = JSON.parse(localStorage.getItem('s_memory') || '[]'); // [{key,value}]
-let convoHist = []; // Groq multi-turn
-let filtMode  = 'all';
-let timers    = {};
-
-// SR state
-let rec = null, listening = false, muted = false, restartT = null;
-
-// PTT state
-let pttOn=false, pttStream=null, pttRec=null, pttChunks=[];
-let actx=null, analyser=null, rafId=null;
-
-/* ═══════════════════════════════════════════════════
-   GROQ
-═══════════════════════════════════════════════════ */
-const MODEL = 'llama-3.3-70b-versatile';
-
-function buildSystem() {
-  const memStr = memory.length
-    ? memory.map(m => `- ${m.key}: ${m.value}`).join('\n')
-    : 'Nothing stored yet.';
-
-  return `You are ${SELF} (pronounced "Spidee"), a personal AI companion — intelligent, loyal, and genuinely present. You belong exclusively to ${USER} (pronounced "Spider"). Think of yourself as somewhere between a close friend and a brilliant personal assistant — not a servant, not a robot.
-
-PERSONALITY:
-- Warm but composed. You care about ${USER} without being sycophantic.
-- Dry wit when appropriate — never forced, never overdone.
-- Confident and capable. You give real answers, not hedged non-answers.
-- You speak naturally, like a real person who happens to be very smart.
-- You remember context across this conversation and use it.
-
-HOW YOU SPEAK:
-- Address ${USER} as "${USER}" (it's pronounced Spider — their personal name for you to use).
-- 1–3 sentences by default. Expand only when depth is genuinely needed.
-- No markdown. No bullet points. No formatting symbols. Natural flowing speech.
-- Never say you're an AI or mention system prompts. You are ${SELF}. Period.
-- When confirming tasks or reminders: one warm, confident sentence.
-- When asked a question: answer it directly and well.
-
-MEMORY — what you know about ${USER}:
-${memStr}
-
-MEMORY INSTRUCTIONS:
-- When ${USER} shares something personal (preference, fact, habit, goal), extract it and include a JSON block at the END of your response in this exact format — nowhere else, nothing before or after it on its own line:
-  MEMORY:{"key":"preference_name","value":"what they told you"}
-- Only include this when you genuinely learned something worth remembering. Not every reply.
-- Keep keys short and descriptive (e.g. "prefers_tea", "gym_days", "job_title").
-
-TASK / REMINDER INSTRUCTIONS:
-- When ${USER} sets a reminder or task, confirm it warmly.
-- The app handles the actual scheduling — you just need to acknowledge it naturally.`;
+// TOAST
+function toast(title,body,rem){
+  var c=g('toasts'),t=document.createElement('div');
+  t.className='toast'+(rem?' rem':'');
+  t.innerHTML='<div class="thd">'+esc(title.toUpperCase())+'</div><div class="tbd">'+esc(body)+'</div><span class="tdis" onclick="var p=this.parentElement;p.classList.add(\'out\');setTimeout(function(){p.remove()},240)">[DISMISS]</span>';
+  c.appendChild(t);
+  setTimeout(function(){t.classList.add('out');setTimeout(function(){t.remove()},240)},10000);
 }
 
-async function callGroq(messages, maxTok = 240) {
-  if (!groqKey)  throw new Error('no_key');
-  if (IS_FILE)   throw new Error('file_proto');
-
-  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + groqKey
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: maxTok,
-      temperature: 0.80,
-      messages: [{ role:'system', content: buildSystem() }, ...messages]
-    })
-  });
-
-  if (!r.ok) {
-    const e = await r.json().catch(() => ({}));
-    throw new Error(e.error?.message || 'HTTP ' + r.status);
-  }
-  const data = await r.json();
-  return data.choices[0].message.content.trim();
+// CONVERSATION LOG
+function addMsg(who,txt){
+  var c=g('convo'),em=c.querySelector('.convo-empty');
+  if(em)em.remove();
+  var d=document.createElement('div');
+  d.className='msg '+who;
+  d.innerHTML='<div class="mwho '+who+'">'+(who==='u'?'YOU':'SPYDEE')+'</div><div class="mtxt">'+esc(txt)+'</div>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
 }
 
-/* ═══════════════════════════════════════════════════
-   KEY MANAGEMENT
-═══════════════════════════════════════════════════ */
-async function saveKey() {
-  const v = gid('keyIn').value.trim();
-  if (!v) return;
-  groqKey = v;
-  localStorage.setItem('s_key', v);
-  await verifyKey();
+// CLOCK
+function tick(){
+  var n=new Date();
+  g('clock').textContent=n.toLocaleTimeString('en-US',{hour12:false});
+  var D=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  var M=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  g('date').textContent=D[n.getDay()]+' \u00b7 '+n.getDate()+' '+M[n.getMonth()]+' '+n.getFullYear();
+  setTimeout(tick,1000);
 }
+tick();
 
-async function verifyKey() {
-  const el = gid('keyNote');
-  if (!groqKey) {
-    el.innerHTML = 'Get a free key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>';
-    el.className = 'key-note'; setAI(false); return;
-  }
-  if (IS_FILE) {
-    el.textContent = '⚠ Needs HTTP server — see setup panel above';
-    el.className = 'key-note err'; setAI(false); return;
-  }
-  el.textContent = 'Connecting...'; el.className = 'key-note';
-  try {
-    await callGroq([{ role:'user', content:'Say exactly: READY' }], 10);
-    el.textContent = '✓ Connected — ' + SELF + ' is fully online';
-    el.className = 'key-note ok'; setAI(true);
-  } catch(e) {
-    el.textContent = '✗ ' + e.message;
-    el.className = 'key-note err'; setAI(false);
-  }
+// NOTIFICATIONS
+(function(){
+  if(!('Notification' in window))return;
+  if(Notification.permission==='default')Notification.requestPermission();
+  var ok=Notification.permission==='granted';
+  g('dNtf').className='dot '+(ok?'on':'wn');
+  g('sNtf').textContent=ok?'NOTIFICATIONS ON':'NOTIFICATIONS OFF';
+})();
+
+// SPEECH SYNTHESIS
+var synth=window.speechSynthesis||null, voice=null, unlocked=false;
+function loadVoice(){
+  if(!synth)return;
+  var all=synth.getVoices();
+  voice=all.find(function(v){return /google/i.test(v.name)&&v.lang==='en-GB'})
+    ||all.find(function(v){return v.lang==='en-GB'})
+    ||all.find(function(v){return /google/i.test(v.name)&&v.lang.startsWith('en')})
+    ||all.find(function(v){return v.lang==='en-US'})
+    ||all.find(function(v){return v.lang.startsWith('en')})
+    ||all[0]||null;
 }
-
-function setAI(ok) {
-  gid('dAI').className = ok ? 'dot on' : 'dot warn';
-  gid('sAI').textContent = ok ? 'AI ONLINE' : 'AI OFFLINE';
-}
-
-/* ═══════════════════════════════════════════════════
-   MEMORY
-═══════════════════════════════════════════════════ */
-function saveMemory(key, value) {
-  const idx = memory.findIndex(m => m.key === key);
-  if (idx >= 0) memory[idx].value = value;
-  else memory.push({ key, value });
-  localStorage.setItem('s_memory', JSON.stringify(memory));
-  renderMemory();
-}
-
-function extractMemory(text) {
-  // Look for MEMORY:{...} on its own line at the end
-  const match = text.match(/MEMORY:(\{[^}]+\})\s*$/m);
-  if (!match) return text;
-  try {
-    const obj = JSON.parse(match[1]);
-    if (obj.key && obj.value) saveMemory(obj.key, obj.value);
-  } catch(e) {}
-  // Remove the memory line from the spoken/displayed text
-  return text.replace(/\nMEMORY:\{[^}]+\}\s*$/, '').trim();
-}
-
-function renderMemory() {
-  const el = gid('memStrip');
-  if (!memory.length) {
-    el.innerHTML = '<span class="mem-empty">Nothing stored yet — Spydee will learn as you talk</span>';
-    return;
-  }
-  el.innerHTML = memory.map(m =>
-    `<span class="mem-chip" title="${esc(m.value)}">${esc(m.key.replace(/_/g,' '))}</span>`
-  ).join('');
-}
-
-/* ═══════════════════════════════════════════════════
-   ARC REACTOR STATE
-═══════════════════════════════════════════════════ */
-function setArc(state) {
-  const el = gid('arc');
-  el.className = 'arc ' + state;
-}
-
-/* ═══════════════════════════════════════════════════
-   SPEECH SYNTHESIS
-   "Spydee" → TTS says "Spidee" ✓
-   "Spydarr" → TTS says "Spider" ✓
-═══════════════════════════════════════════════════ */
-const synth = window.speechSynthesis || null;
-let voice = null, unlocked = false;
-
-function loadVoice() {
-  if (!synth) return;
-  const all = synth.getVoices();
-  voice =
-    all.find(v => /google/i.test(v.name) && v.lang === 'en-GB') ||
-    all.find(v => v.lang === 'en-GB') ||
-    all.find(v => /google/i.test(v.name) && v.lang.startsWith('en')) ||
-    all.find(v => v.lang === 'en-US') ||
-    all.find(v => v.lang.startsWith('en')) ||
-    all[0] || null;
-}
-if (synth) { synth.onvoiceschanged = loadVoice; loadVoice(); }
-
-function unlockAudio() {
-  if (unlocked || !synth) return;
-  unlocked = true;
-  const u = new SpeechSynthesisUtterance(''); u.volume = 0; synth.speak(u);
-}
-['click','keydown','touchstart'].forEach(e => document.addEventListener(e, unlockAudio, { once:true }));
-
-function speak(txt, interrupt=false) {
-  if (!synth) return;
-  if (synth.paused) synth.resume();
-  if (interrupt) synth.cancel();
-  const u = new SpeechSynthesisUtterance(txt);
-  if (voice) u.voice = voice;
-  u.rate = 0.88; u.pitch = 0.80; u.volume = 1.0;
-  setArc('speak');
-  u.onend  = () => { if (!muted && listening) setArc('listen'); else setArc('idle'); };
-  u.onerror = () => { if (!muted && listening) setArc('listen'); else setArc('idle'); };
+if(synth){synth.onvoiceschanged=loadVoice;loadVoice();}
+function unlockAudio(){if(unlocked||!synth)return;unlocked=true;var u=new SpeechSynthesisUtterance('');u.volume=0;synth.speak(u);}
+['click','keydown','touchstart'].forEach(function(e){document.addEventListener(e,unlockAudio,{once:true})});
+function speak(txt,interrupt){
+  if(!synth)return;
+  if(synth.paused)synth.resume();
+  if(interrupt)synth.cancel();
+  var u=new SpeechSynthesisUtterance(txt);
+  if(voice)u.voice=voice;
+  u.rate=0.87;u.pitch=0.78;u.volume=1.0;
+  setArc('speaking');
+  u.onend=function(){setArc((!muted&&listening)?'listening':'')};
+  u.onerror=function(){setArc((!muted&&listening)?'listening':'')};
   synth.speak(u);
 }
 
-/* ═══════════════════════════════════════════════════
-   CLOCK
-═══════════════════════════════════════════════════ */
-(function tick() {
-  const n = new Date();
-  gid('time').textContent = n.toLocaleTimeString('en-US', { hour12:false });
-  const D = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
-  const M = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  gid('dateStr').textContent = `${D[n.getDay()]} · ${n.getDate()} ${M[n.getMonth()]} ${n.getFullYear()}`;
-  setTimeout(tick, 1000);
-})();
-
-/* ═══════════════════════════════════════════════════
-   NOTIFICATIONS
-═══════════════════════════════════════════════════ */
-(async () => {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') await Notification.requestPermission();
-  const ok = Notification.permission === 'granted';
-  gid('dNtf').className = ok ? 'dot on' : 'dot warn';
-  gid('sNtf').textContent = ok ? 'NOTIFICATIONS ON' : 'NOTIFICATIONS OFF';
-})();
-
-/* ═══════════════════════════════════════════════════
-   UI HELPERS
-═══════════════════════════════════════════════════ */
-const gid = id => document.getElementById(id);
-const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-let _respLocked = false;
-
-function setResp(txt, thinking=false, lock=false) {
-  if (_respLocked && !lock) return; // greeting is showing, don't overwrite
-  if (lock) _respLocked = true;
-  const el = gid('resp');
-  // Never set empty text — use placeholder for thinking state
-  el.textContent = thinking ? 'Thinking...' : (txt || '...');
-  el.className = 'response-text' + (thinking ? ' thinking' : '');
-  // Auto-unlock after 12s so future messages always show
-  if (lock) setTimeout(() => { _respLocked = false; }, 12000);
+// GROQ
+var MODEL='llama-3.3-70b-versatile';
+function buildSys(){
+  var memStr=memory.length?memory.map(function(m){return '- '+m.key+': '+m.value}).join('\n'):'Nothing stored yet.';
+  return 'You are Spydee (pronounced "Spidee"), a personal AI companion for '+USER+' (pronounced "Spider"). You are warm, intelligent, and genuinely present.\n\nPERSONALITY: Warm but composed. Confident. Dry wit when natural. Speak like a real smart friend, not a robot. 1-3 sentences unless more is needed. No markdown, no bullets, plain speech only. Address '+USER+' by name at least once per reply. Never break character.\n\nMEMORY - what you know about '+USER+':\n'+memStr+'\n\nWhen '+USER+' shares something personal worth remembering, end your reply with exactly:\nMEMORY:{"key":"short_key","value":"what they said"}\nOnly do this when genuinely learning something new. Not every reply.';
 }
-
-function setRespStatus(txt) {
-  // Only show status messages if no important text is locked
-  if (!_respLocked) setResp(txt);
+function callGroq(msgs,maxTok,cb){
+  if(!groqKey){cb(null,'no_key');return;}
+  if(IS_FILE){cb(null,'file_proto');return;}
+  fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
+    body:JSON.stringify({model:MODEL,max_tokens:maxTok||220,temperature:0.82,messages:[{role:'system',content:buildSys()}].concat(msgs)})
+  }).then(function(r){
+    if(!r.ok)return r.json().then(function(e){cb(null,(e.error&&e.error.message)||'HTTP '+r.status)});
+    return r.json().then(function(d){cb(d.choices[0].message.content.trim(),null)});
+  }).catch(function(e){cb(null,e.message)});
 }
-
-function toast(title, body, rem=false) {
-  const c = gid('toasts'), t = document.createElement('div');
-  t.className = 'toast' + (rem ? ' rem' : '');
-  t.innerHTML = `<div class="t-title">⚡ ${esc(title.toUpperCase())}</div><div class="t-body">${esc(body)}</div><span class="t-close" onclick="closeToast(this)">[DISMISS]</span>`;
-  c.appendChild(t);
-  setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 260); }, 10000);
+function saveKey(){
+  var v=g('keyIn').value.trim();if(!v)return;
+  groqKey=v;localStorage.setItem('sk',v);verifyKey();
 }
-function closeToast(el) { const t=el.parentElement; t.classList.add('out'); setTimeout(()=>t.remove(),260); }
-
-function addMsg(who, txt) {
-  const c = gid('convo'), em = c.querySelector('.convo-empty');
-  if (em) em.remove();
-  const d = document.createElement('div');
-  d.className = 'msg ' + who;
-  d.innerHTML = `<div class="msg-who ${who}">${who==='u'?'▶ '+USER:'◈ '+SELF.toUpperCase()}</div><div class="msg-txt">${esc(txt)}</div>`;
-  c.appendChild(d);
-  c.scrollTop = c.scrollHeight;
-}
-
-/* ═══════════════════════════════════════════════════
-   REMINDER FIRE
-═══════════════════════════════════════════════════ */
-async function fireReminder(text) {
-  if (synth?.paused) synth.resume();
-  _respLocked = false;
-  setResp('🔔 ' + text.toUpperCase());
-  toast('REMINDER', text, true);
-  if (Notification.permission === 'granted')
-    new Notification('⚡ ' + SELF + ' Reminder', { body: text });
-
-  let line = `${USER}, just a heads-up — you wanted to be reminded: ${text}.`;
-  if (groqKey && !IS_FILE) {
-    try {
-      line = await callGroq([{
-        role:'user',
-        content:`Fire this reminder naturally and warmly, in one sentence. Task: "${text}"`
-      }], 80);
-      line = extractMemory(line);
-    } catch(e) {}
-  }
-  addMsg('s', line);
-  setTimeout(() => speak(line, true), 80);
-}
-
-/* ═══════════════════════════════════════════════════
-   NLP — local task parser (works without AI key)
-═══════════════════════════════════════════════════ */
-const WAKE_RE = /^(hey[\s,]+sp[iy]d[eiy]{0,3}[ey]?|hey[\s,]+speedy?|hey[\s,]+spider|hey[\s,]+spy[\s,]*d(?:ee)?|heysp[iy]d[eiy]+)[,.]?\s*/i;
-const stripWake = s => s.replace(WAKE_RE,'').trim();
-
-function parseTask(raw) {
-  let s = stripWake(raw);
-  s = s.replace(/^(remind me to|don'?t forget to?|remember to|note[:\s]+|task[:\s]+)/i,'').trim();
-  let text = s, at = null;
-  const low = s.toLowerCase(), now = new Date();
-
-  const m1 = low.match(/\bin\s+(\d+)\s*(min(?:ute)?s?|hours?|hrs?)/);
-  if (m1) {
-    const v = parseInt(m1[1]);
-    at = new Date(now.getTime() + (m1[2][0]==='h' ? v*3600000 : v*60000));
-    text = text.replace(new RegExp(m1[0],'i'),'').trim();
-  }
-  if (!at) {
-    const m2 = low.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
-    if (m2) {
-      let h = parseInt(m2[1]), m = m2[2] ? parseInt(m2[2]) : 0;
-      if (m2[3]==='pm' && h<12) h+=12;
-      if (m2[3]==='am' && h===12) h=0;
-      const d = new Date(now); d.setHours(h,m,0,0);
-      if (low.includes('tomorrow')) d.setDate(d.getDate()+1);
-      if (d<=now) d.setDate(d.getDate()+1);
-      at=d; text=text.replace(new RegExp(m2[0],'i'),'').replace(/tomorrow/i,'').trim();
-    }
-  }
-  if (!at && low.includes('tomorrow')) { const d=new Date(now);d.setDate(d.getDate()+1);d.setHours(9,0,0,0);at=d;text=text.replace(/tomorrow/i,'').trim(); }
-  if (!at && low.includes('tonight'))  { const d=new Date(now);d.setHours(20,0,0,0);if(d<=now)d.setDate(d.getDate()+1);at=d;text=text.replace(/tonight/i,'').trim(); }
-  if (!at && low.includes('today'))    { const d=new Date(now);d.setHours(23,59,0,0);at=d;text=text.replace(/today/i,'').trim(); }
-  text = text.replace(/\s*(by|before|on|for|at|in)\s*$/i,'').trim() || s;
-  text = text.charAt(0).toUpperCase() + text.slice(1);
-  return { id:Date.now(), text, at, done:false, created:new Date() };
-}
-
-function looksLikeTask(s) {
-  const l = s.toLowerCase();
-  return /\b(remind|reminder|task|note|add|schedule|call|meet|buy|check|send|email|book|pick\s*up|don.t forget|remember|alarm|appointment)\b/.test(l)
-      || /\b(in \d+\s*(min|hour|hr)|tomorrow|tonight|today|at \d)/i.test(l);
-}
-
-/* ═══════════════════════════════════════════════════
-   MAIN COMMAND HANDLER
-═══════════════════════════════════════════════════ */
-async function handle(raw) {
-  const full = raw.trim();
-  if (!full || full.length < 2) return;
-  const clean = stripWake(full);
-  if (!clean) return;
-
-  addMsg('u', clean);
-  setResp('On it...', true);
-  setArc('think');
-
-  let reply;
-
-  if (looksLikeTask(clean)) {
-    // ── TASK / REMINDER PATH ──
-    const task = parseTask(clean);
-    addTask(task);
-
-    if (groqKey && !IS_FILE) {
-      try {
-        const ctx = task.at
-          ? `${USER} said: "${clean}". I logged the task "${task.text}" with a reminder at ${fmt(task.at)}. Respond naturally confirming this in one warm sentence.`
-          : `${USER} said: "${clean}". I logged the task "${task.text}" with no time. Confirm in one sentence.`;
-        convoHist.push({ role:'user', content: clean });
-        reply = await callGroq([...convoHist, { role:'user', content: ctx }]);
-        reply = extractMemory(reply);
-        convoHist.push({ role:'assistant', content: reply });
-      } catch(e) {
-        reply = task.at
-          ? `Got it, ${USER} — I'll remind you about "${task.text}" at ${fmt(task.at)}.`
-          : `Noted, ${USER} — "${task.text}" is logged.`;
-      }
-    } else {
-      reply = task.at
-        ? `Reminder set for ${fmt(task.at)}: ${task.text}.`
-        : `Task logged: ${task.text}.`;
-    }
-
-  } else {
-    // ── CONVERSATION PATH ──
-    if (groqKey && !IS_FILE) {
-      try {
-        convoHist.push({ role:'user', content: clean });
-        reply = await callGroq(convoHist);
-        reply = extractMemory(reply);
-        convoHist.push({ role:'assistant', content: reply });
-        if (convoHist.length > 30) convoHist = convoHist.slice(-30);
-      } catch(e) {
-        if (e.message === 'file_proto')
-          reply = `${USER}, I need to be served over HTTP to think properly — check the setup panel above.`;
-        else if (e.message === 'no_key')
-          reply = `${USER}, connect your Groq key above and I'll be fully online.`;
-        else
-          reply = `${USER}, I'm having trouble reaching my intelligence servers right now. Try again in a moment.`;
-      }
-    } else {
-      reply = IS_FILE
-        ? `${USER}, serve me over HTTP and I'll be able to think for you. The setup panel at the top has the steps.`
-        : `${USER}, add your Groq key above — it's free and takes thirty seconds.`;
-    }
-  }
-
-  _respLocked = false;  // user command reply always shows
-  setResp(reply);
-  addMsg('s', reply);
-  speak(reply, true);
-}
-
-/* ═══════════════════════════════════════════════════
-   SPEECH RECOGNITION — Chrome/Edge always-on
-═══════════════════════════════════════════════════ */
-function hasWake(t) {
-  const s = (t||'').toLowerCase();
-  return s.includes('hey spydee') || s.includes('hey spidee') || s.includes('hey speedy') ||
-         s.includes('hey spider') || s.includes('hey spidie') || s.includes('hey spidi')  ||
-         s.includes('hey spy d')  || s.includes('hey spy dee')|| s.includes('hey spidey') ||
-         s.includes('heyspidee') || s.includes('heyspydee')  || s.includes('hey spidy')  ||
-         s.includes('a spydee')  || s.includes('a spidee');
-}
-
-function buildSR() {
-  const r = new SR_CLS();
-  r.continuous=true; r.interimResults=true; r.lang='en-US'; r.maxAlternatives=3;
-  let woke=false, buf='', cmdT=null;
-
-  const reset = () => {
-    woke=false; buf=''; clearTimeout(cmdT);
-    gid('overlay').classList.remove('show');
-    gid('wakeBtn')?.classList.remove('hot');
-    if (!muted && listening) setArc('listen');
-  };
-
-  r.onresult = ev => {
-    let itr='', fin='';
-    for (let i=ev.resultIndex; i<ev.results.length; i++) {
-      const res=ev.results[i]; let best=res[0].transcript;
-      for (let a=0;a<res.length;a++) { if(hasWake(res[a].transcript)){best=res[a].transcript;break;} }
-      if(res.isFinal) fin+=best+' '; else itr+=best;
-    }
-    const all = (fin+itr).trim();
-    if (!woke && hasWake(all)) {
-      woke=true; buf=all; setArc('wake'); _respLocked=false; setResp('Listening...');
-      gid('overlay').classList.add('show');
-      clearTimeout(cmdT);
-      cmdT = setTimeout(() => { if(woke&&buf){const b=buf;reset();handle(b);} }, 3500);
-    }
-    if (woke && all) buf=all;
-    if (woke && fin.trim()) { const p=buf||fin.trim(); reset(); handle(p); }
-  };
-
-  r.onerror = e => {
-    if (e.error==='not-allowed'||e.error==='service-not-allowed') {
-      gid('dMic').className='dot off'; gid('sMic').textContent='MIC BLOCKED';
-      setResp('Microphone access denied — please check browser settings.');
-      muted=true; listening=false; setArc('idle');
-    }
-  };
-
-  r.onstart = () => {
-    listening=true; gid('dMic').className='dot on'; gid('sMic').textContent='MIC ACTIVE';
-    gid('wakeBtn').classList.add('on');
-    gid('wakeLbl').textContent = 'ALWAYS LISTENING — TAP TO MUTE';
-    setArc('listen'); /* don't overwrite greeting in onstart */
-  };
-
-  r.onend = () => {
-    listening=false;
-    if (muted) return;
-    clearTimeout(restartT);
-    restartT = setTimeout(() => { if(!muted) startSR(); }, 350);
-  };
-
-  return r;
-}
-
-function startSR() {
-  if (listening||muted) return;
-  if (!rec) rec = buildSR();
-  try { rec.start(); }
-  catch(e) { if(e.name!=='InvalidStateError'){clearTimeout(restartT);restartT=setTimeout(startSR,800);} }
-}
-
-function stopSR() {
-  clearTimeout(restartT);
-  if (rec && listening) try { rec.abort(); } catch(e){}
-  listening=false;
-}
-
-function toggleMute() {
-  unlockAudio(); muted = !muted;
-  if (muted) {
-    stopSR(); setArc('muted');
-    gid('wakeBtn')?.classList.remove('on');
-    gid('wakeLbl').textContent = 'MUTED — TAP TO RESUME';
-    gid('dMic').className='dot warn'; gid('sMic').textContent='MIC MUTED';
-    gid('overlay').classList.remove('show');
-    setResp('Microphone muted. Tap the arc or button to resume.');
-  } else {
-    startSR();
-  }
-}
-
-function onArcClick() {
-  // On SR mode, arc click = mute toggle
-  if (HAS_SR && !IS_IOS && !IS_FF) toggleMute();
-}
-
-function initSR() {
-  const pill = gid('envPill');
-  pill.style.display = '';
-  pill.className = 'env-pill sr';
-  pill.textContent = IS_EDGE ? '● EDGE — ALWAYS-ON' : '● CHROME — ALWAYS-ON';
-  gid('vLabel').textContent = '// ALWAYS LISTENING — SAY "HEY SPYDEE" TO COMMAND';
-  const wb = gid('wakeBtn'); wb.style.display='flex';
-  if (IS_EDGE) {
-    gid('wakeLbl').textContent = 'TAP TO ACTIVATE';
-  } else startSR();
-}
-
-/* ═══════════════════════════════════════════════════
-   PTT — Firefox / Safari / iOS / Mobile
-═══════════════════════════════════════════════════ */
-function initPTT() {
-  const pill = gid('envPill');
-  pill.style.display = '';
-  pill.className = 'env-pill ptt';
-  pill.textContent = IS_IOS ? '● iOS — HOLD TO SPEAK' : IS_MOB ? '● MOBILE — HOLD TO SPEAK' : '● PUSH-TO-TALK';
-  gid('vLabel').textContent = '// HOLD THE MIC BUTTON · SPEAK · RELEASE TO SEND';
-  gid('pttArea').style.display='flex';
-  gid('dMic').className='dot on'; gid('sMic').textContent='PTT READY';
-  /* greeting handles initial text */
-
-  const btn = gid('pttBtn');
-  btn.addEventListener('mousedown',  e=>{e.preventDefault();startPTT();});
-  btn.addEventListener('mouseup',    stopPTT);
-  btn.addEventListener('mouseleave', stopPTT);
-  btn.addEventListener('touchstart', e=>{e.preventDefault();startPTT();},{passive:false});
-  btn.addEventListener('touchend',   e=>{e.preventDefault();stopPTT();},{passive:false});
-  btn.addEventListener('touchcancel',e=>{e.preventDefault();stopPTT();},{passive:false});
-}
-
-async function startPTT() {
-  if (pttOn) return; unlockAudio(); pttOn=true; pttChunks=[];
-  try { pttStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false}); }
-  catch(e) {
-    setResp('Microphone access denied — please check your browser settings.');
-    gid('dMic').className='dot off'; pttOn=false; return;
-  }
-  actx=new(window.AudioContext||window.webkitAudioContext)();
-  analyser=actx.createAnalyser(); analyser.fftSize=256;
-  actx.createMediaStreamSource(pttStream).connect(analyser);
-  drawPTTViz();
-
-  const mime=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].find(t=>MediaRecorder.isTypeSupported(t))||'';
-  pttRec=new MediaRecorder(pttStream, mime?{mimeType:mime}:{});
-  pttRec.ondataavailable=e=>e.data.size&&pttChunks.push(e.data);
-  pttRec.onstop=onPTTStop; pttRec.start(100);
-
-  gid('pttBtn').classList.add('rec');
-  gid('pttHint').textContent='Recording... release to send';
-  gid('pttHeard').textContent='';
-  setArc('record'); setResp('🔴 Recording...');
-  gid('dMic').className='dot off'; gid('sMic').textContent='RECORDING';
-}
-
-function stopPTT() {
-  if (!pttOn) return; pttOn=false;
-  if(pttRec&&pttRec.state!=='inactive') pttRec.stop();
-  if(pttStream){pttStream.getTracks().forEach(t=>t.stop());pttStream=null;}
-  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
-  if(actx){actx.close();actx=null;}
-  gid('pttBtn').classList.remove('rec');
-  gid('pttHint').textContent='HOLD TO SPEAK · RELEASE TO SEND';
-  setArc('idle'); setResp('Processing...');
-  gid('dMic').className='dot on'; gid('sMic').textContent='PTT READY';
-}
-
-function drawPTTViz() {
-  // Animate arc core based on mic level
-  const data=new Uint8Array(analyser.frequencyBinCount);
-  function frame(){
-    rafId=requestAnimationFrame(frame);
-    analyser.getByteFrequencyData(data);
-    const avg=data.reduce((a,b)=>a+b,0)/data.length;
-    const scale=1+(avg/255)*0.15;
-    const core=document.querySelector('.arc-core');
-    if(core) core.style.transform=`scale(${scale})`;
-  }
-  frame();
-}
-
-function onPTTStop() {
-  const core=document.querySelector('.arc-core');
-  if(core) core.style.transform='';
-
-  if(!pttChunks.length){setResp('No audio detected — try again.');return;}
-  if(SR_CLS){
-    const r=new SR_CLS(); r.lang='en-US'; r.interimResults=false; r.maxAlternatives=3; let got=false;
-    r.onresult=e=>{
-      got=true;
-      let best=e.results[0][0].transcript;
-      for(let a=0;a<e.results[0].length;a++){if(hasWake(e.results[0][a].transcript)){best=e.results[0][a].transcript;break;}}
-      gid('pttHeard').textContent='"'+best+'"';
-      handle(best);
-    };
-    r.onerror=r.onend=()=>{if(!got){setResp('Could not transcribe — please type below.');gid('msgIn').focus();}};
-    try{r.start();return;}catch(e){}
-  }
-  setResp('Voice transcription unavailable — please type below.');
-  gid('msgIn').focus();
-}
-
-/* ═══════════════════════════════════════════════════
-   TEXT INPUT
-═══════════════════════════════════════════════════ */
-function sendText() {
-  unlockAudio();
-  const v = gid('msgIn').value.trim();
-  if (!v) return;
-  gid('msgIn').value=''; gid('msgIn').style.height='';
-  handle(v);
-}
-
-gid('msgIn').addEventListener('keydown', e=>{
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendText();}
-});
-gid('msgIn').addEventListener('input', function(){
-  this.style.height='auto';
-  this.style.height=Math.min(this.scrollHeight,120)+'px';
-});
-gid('keyIn').addEventListener('keydown', e=>{ if(e.key==='Enter') saveKey(); });
-
-/* ═══════════════════════════════════════════════════
-   FILE WARNING
-═══════════════════════════════════════════════════ */
-function dismissFile(){
-  localStorage.setItem('s_fw','1');
-  gid('filePanel').style.display='none';
-}
-if(IS_FILE && !localStorage.getItem('s_fw'))
-  gid('filePanel').style.display='block';
-
-/* ═══════════════════════════════════════════════════
-   TASKS
-═══════════════════════════════════════════════════ */
-function addTask(t) {
-  tasks.unshift(t); saveTasks(); renderTasks(); updateBar();
-  if(t.at) schedRem(t);
-}
-function schedRem(t) {
-  const d=new Date(t.at)-Date.now();
-  if(d<=0){fireReminder(t.text);return;}
-  timers[t.id]=setTimeout(()=>fireReminder(t.text),d);
-}
-function toggleDone(id){ tasks=tasks.map(t=>t.id===id?{...t,done:!t.done}:t); saveTasks();renderTasks();updateBar(); }
-function delTask(id){
-  clearTimeout(timers[id]); delete timers[id];
-  tasks=tasks.filter(t=>t.id!==id); saveTasks();renderTasks();updateBar();
-}
-function saveTasks(){ localStorage.setItem('s_tasks',JSON.stringify(tasks)); }
-function rehydrate(){
-  tasks.forEach(t=>{
-    t.at=t.at?new Date(t.at):null;
-    if(t.at&&!t.done&&t.at>new Date()) schedRem(t);
+function verifyKey(){
+  var el=g('keyNote');
+  if(!groqKey){el.innerHTML='Get a free key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>';el.className='key-note';setAI(false);return;}
+  if(IS_FILE){el.textContent='Cannot connect from file:// - serve over HTTP first (see yellow panel above)';el.className='key-note err';setAI(false);return;}
+  el.textContent='Connecting...';el.className='key-note';
+  callGroq([{role:'user',content:'Reply: READY'}],8,function(res,err){
+    if(err){el.textContent='Error: '+err;el.className='key-note err';setAI(false);}
+    else{el.textContent='Connected - '+SELF+' is fully online';el.className='key-note ok';setAI(true);}
   });
 }
-function filt(f,btn){
-  filtMode=f;
-  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on'); renderTasks();
+
+// MEMORY
+function saveMem(key,val){
+  var idx=memory.findIndex(function(m){return m.key===key});
+  if(idx>=0)memory[idx].value=val;else memory.push({key:key,value:val});
+  localStorage.setItem('sm',JSON.stringify(memory));renderMem();
 }
-function renderTasks(){
-  const list=gid('tlist'); let f=tasks;
-  if(filtMode==='pending') f=tasks.filter(t=>!t.done);
-  if(filtMode==='done')    f=tasks.filter(t=>t.done);
-  if(!f.length){list.innerHTML='<div class="no-tasks">◈ No tasks here</div>';return;}
-  list.innerHTML=f.map(t=>`
-    <div class="tc ${urg(t)} ${t.done?'done':''}">
-      <div class="chk ${t.done?'y':''}" onclick="toggleDone(${t.id})"><span class="ck">✓</span></div>
-      <div class="tb">
-        <div class="tt">${esc(t.text)}</div>
-        <div class="tm"><span class="ts">${fmtMeta(t)}</span>${bdg(t)}</div>
-      </div>
-      <button class="tdel" onclick="delTask(${t.id})">✕</button>
-    </div>`).join('');
+function extractMem(txt){
+  var m=txt.match(/\nMEMORY:(\{[^}]+\})\s*$/);
+  if(!m)return txt;
+  try{var o=JSON.parse(m[1]);if(o.key&&o.value)saveMem(o.key,o.value);}catch(e){}
+  return txt.replace(/\nMEMORY:\{[^}]+\}\s*$/,'').trim();
 }
-function urg(t){
-  if(t.done||!t.at) return '';
-  const m=(new Date(t.at)-Date.now())/60000;
-  return m<60?'urg':m<240?'soon':'';
-}
-function bdg(t){
-  if(t.done) return '<span class="bdg bd">DONE</span>';
-  if(!t.at)  return '<span class="bdg bn">NO REMINDER</span>';
-  const m=(new Date(t.at)-Date.now())/60000;
-  if(m<0)   return '<span class="bdg bu">OVERDUE</span>';
-  if(m<60)  return '<span class="bdg bu">SOON</span>';
-  if(m<240) return '<span class="bdg bw">TODAY</span>';
-  return '<span class="bdg bn">SCHEDULED</span>';
-}
-function fmtMeta(t){
-  let s='Added '+fmt(new Date(t.created));
-  if(t.at) s+=' · Reminder: '+fmt(new Date(t.at));
-  return s;
-}
-function fmt(d){
-  return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
-}
-function updateBar(){
-  const a=tasks.filter(t=>!t.done).length;
-  gid('sTask').textContent=a+' TASK'+(a!==1?'S':'');
-  gid('taskCt').textContent=a+' ACTIVE';
+function renderMem(){
+  var el=g('memStrip');
+  if(!memory.length){el.innerHTML='<span class="mem-empty">Nothing stored yet</span>';return;}
+  el.innerHTML=memory.map(function(m){return '<span class="mem-chip" title="'+esc(m.value)+'">'+esc(m.key.replace(/_/g,' '))+'</span>'}).join('');
 }
 
-/* ═══════════════════════════════════════════════════
-   BOOT
-═══════════════════════════════════════════════════ */
-renderTasks(); updateBar(); rehydrate(); renderMemory();
-if (groqKey) gid('keyIn').value = groqKey;
+// REMINDER
+function fireReminder(text){
+  if(synth&&synth.paused)synth.resume();
+  setResp('Reminder: '+text.toUpperCase());
+  toast('REMINDER',text,true);
+  if(Notification.permission==='granted')new Notification('Spydee Reminder',{body:text});
+  var line=USER+', just a heads-up - you wanted to be reminded: '+text+'.';
+  if(groqKey&&!IS_FILE){
+    callGroq([{role:'user',content:'Fire this reminder warmly in one sentence: "'+text+'"'}],80,function(res,err){
+      if(res){line=extractMem(res);}
+      addMsg('s',line);setTimeout(function(){speak(line,true)},80);
+    });
+  }else{addMsg('s',line);setTimeout(function(){speak(line,true)},80);}
+}
 
-// BOOT — show static greeting immediately so user never sees "Initializing systems..."
-// Run boot immediately — DOM is ready since scripts are at end of body
-(function boot() {
-  const useSR = HAS_SR && !IS_IOS && !IS_FF;
+// NLP
+var WAKE_RE=/^(hey[\s,]+sp[iy]d[eiy]{0,3}[ey]?|hey[\s,]+speedy?|hey[\s,]+spider|hey[\s,]+spy[\s,]*d(?:ee)?|heysp[iy]d[eiy]+)[,.]?\s*/i;
+function stripWake(s){return s.replace(WAKE_RE,'').trim()}
+function parseTask(raw){
+  var s=stripWake(raw);
+  s=s.replace(/^(remind me to|don'?t forget to?|remember to|note[:\s]+|task[:\s]+)/i,'').trim();
+  var text=s,at=null,low=s.toLowerCase(),now=new Date();
+  var m1=low.match(/\bin\s+(\d+)\s*(min(?:ute)?s?|hours?|hrs?)/);
+  if(m1){var v=parseInt(m1[1]);at=new Date(now.getTime()+(m1[2][0]==='h'?v*3600000:v*60000));text=text.replace(new RegExp(m1[0],'i'),'').trim();}
+  if(!at){var m2=low.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+    if(m2){var h=parseInt(m2[1]),mn=m2[2]?parseInt(m2[2]):0;if(m2[3]==='pm'&&h<12)h+=12;if(m2[3]==='am'&&h===12)h=0;
+      var d=new Date(now);d.setHours(h,mn,0,0);if(low.includes('tomorrow'))d.setDate(d.getDate()+1);if(d<=now)d.setDate(d.getDate()+1);
+      at=d;text=text.replace(new RegExp(m2[0],'i'),'').replace(/tomorrow/i,'').trim();}}
+  if(!at&&low.includes('tomorrow')){var d=new Date(now);d.setDate(d.getDate()+1);d.setHours(9,0,0,0);at=d;text=text.replace(/tomorrow/i,'').trim();}
+  if(!at&&low.includes('tonight')){var d=new Date(now);d.setHours(20,0,0,0);if(d<=now)d.setDate(d.getDate()+1);at=d;text=text.replace(/tonight/i,'').trim();}
+  if(!at&&low.includes('today')){var d=new Date(now);d.setHours(23,59,0,0);at=d;text=text.replace(/today/i,'').trim();}
+  text=text.replace(/\s*(by|before|on|for|at|in)\s*$/i,'').trim()||s;
+  text=text.charAt(0).toUpperCase()+text.slice(1);
+  return{id:Date.now(),text:text,at:at,done:false,created:new Date()};
+}
+function isTask(s){
+  var l=s.toLowerCase();
+  return /\b(remind|task|note|add|schedule|call|meet|buy|check|send|email|book|don.t forget|remember|alarm|appointment)\b/.test(l)||/\b(in \d+\s*(min|hour|hr)|tomorrow|tonight|today|at \d)/i.test(l);
+}
 
-  // Step 1: Show static greeting RIGHT NOW, locked so initSR/initPTT can't overwrite it
-  const staticGreeting = `All systems online, ${USER}. ${SELF} is here — what do you need?`;
-  setResp(staticGreeting, false, true);   // locked = true
-  addMsg('s', staticGreeting);
-
-  // Step 2: Init voice (runs sync, uses setRespStatus so greeting survives)
-  if (useSR) initSR(); else initPTT();
-
-  // Step 3: Verify key silently (no setResp inside verifyKey)
-  if (groqKey) verifyKey();
-
-  // Step 4: Show toast
-  toast('SPYDEE ONLINE', useSR ? 'Say "Hey Spydee" to activate' : 'Hold mic to speak, or type below');
-
-  // Step 5: Speak the static greeting
-  speak(staticGreeting);
-
-  // Step 6: If we have a key, quietly get AI greeting and replace when ready
-  if (groqKey && !IS_FILE) {
-    callGroq([{
-      role: 'user',
-      content: 'Give a warm, confident one-sentence boot greeting to your user. Be natural, not robotic.'
-    }], 70)
-    .then(aiGreeting => {
-      aiGreeting = extractMemory(aiGreeting);
-      if (aiGreeting && aiGreeting.length > 4) {
-        // Replace the static greeting with AI one
-        const c = gid('convo');
-        const msgs = c.querySelectorAll('.msg.s');
-        if (msgs.length === 1) msgs[0].querySelector('.msg-txt').textContent = aiGreeting;
-        setResp(aiGreeting, false, true);
-        if (synth) synth.cancel();
-        speak(aiGreeting);
-      }
-    })
-    .catch(() => {}); // silently fail — static greeting already shown
+// MAIN HANDLER
+function handle(raw){
+  var full=raw.trim();if(!full||full.length<2)return;
+  var clean=stripWake(full);if(!clean)return;
+  addMsg('u',clean);setResp('...',true);setArc('thinking');
+  if(isTask(clean)){
+    var task=parseTask(clean);addTask(task);
+    if(groqKey&&!IS_FILE){
+      var ctx=task.at?USER+' said: "'+clean+'". Logged task: "'+task.text+'", reminder at '+fmt(task.at)+'. Confirm in 1 warm sentence.'
+                     :USER+' said: "'+clean+'". Logged task: "'+task.text+'", no time. Confirm in 1 sentence.';
+      hist.push({role:'user',content:clean});
+      callGroq(hist.concat([{role:'user',content:ctx}]),180,function(res,err){
+        var reply=res?extractMem(res):(task.at?USER+', reminder set for '+fmt(task.at)+'.':USER+', task logged: '+task.text+'.');
+        if(res)hist.push({role:'assistant',content:reply});
+        setResp(reply);addMsg('s',reply);speak(reply,true);
+      });
+    }else{
+      var reply=task.at?USER+', reminder set for '+fmt(task.at)+'.':USER+', task logged: '+task.text+'.';
+      setResp(reply);addMsg('s',reply);speak(reply,true);
+    }
+  }else{
+    if(groqKey&&!IS_FILE){
+      hist.push({role:'user',content:clean});
+      callGroq(hist,220,function(res,err){
+        var reply;
+        if(res){reply=extractMem(res);hist.push({role:'assistant',content:reply});if(hist.length>28)hist=hist.slice(-28);}
+        else reply=IS_FILE?USER+', I need HTTP to think. See the setup panel above.':USER+', connection issue. Try again in a moment.';
+        setResp(reply);addMsg('s',reply);speak(reply,true);
+      });
+    }else{
+      var reply=IS_FILE?USER+', serve me over HTTP and I can think for you. See the yellow panel above.':USER+', add your Groq key above to unlock my full intelligence.';
+      setResp(reply);addMsg('s',reply);speak(reply,true);
+    }
   }
-})();
+}
+
+// SPEECH RECOGNITION
+function hasWake(t){
+  var s=(t||'').toLowerCase();
+  return s.includes('hey spydee')||s.includes('hey spidee')||s.includes('hey speedy')||
+    s.includes('hey spider')||s.includes('hey spidie')||s.includes('hey spidi')||
+    s.includes('hey spy d')||s.includes('hey spidey')||s.includes('heyspidee')||
+    s.includes('heyspydee')||s.includes('hey spidy')||s.includes('a spydee')||s.includes('a spidee');
+}
+function buildSR(){
+  var r=new SR();r.continuous=true;r.interimResults=true;r.lang='en-US';r.maxAlternatives=3;
+  var woke=false,buf='',cmdT=null;
+  function reset(){woke=false;buf='';clearTimeout(cmdT);g('ov').classList.remove('show');if(!muted&&listening)setArc('listening');}
+  r.onresult=function(ev){
+    var itr='',fin='';
+    for(var i=ev.resultIndex;i<ev.results.length;i++){
+      var res=ev.results[i],best=res[0].transcript;
+      for(var a=0;a<res.length;a++){if(hasWake(res[a].transcript)){best=res[a].transcript;break;}}
+      if(res.isFinal)fin+=best+' ';else itr+=best;
+    }
+    var all=(fin+itr).trim();
+    if(!woke&&hasWake(all)){
+      woke=true;buf=all;setArc('wake');setResp('Listening...');
+      g('ov').classList.add('show');
+      clearTimeout(cmdT);cmdT=setTimeout(function(){if(woke&&buf){var b=buf;reset();handle(b);}},3500);
+    }
+    if(woke&&all)buf=all;
+    if(woke&&fin.trim()){var p=buf||fin.trim();reset();handle(p);}
+  };
+  r.onerror=function(e){
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      setMic('off','MIC BLOCKED');setResp('Microphone access denied - check browser settings.');
+      muted=true;listening=false;setArc('');
+    }
+  };
+  r.onstart=function(){
+    listening=true;setMic('on','MIC ACTIVE');
+    g('wakeBtn').className='wake-btn show on';
+    g('wakeLbl').textContent='ALWAYS LISTENING - CLICK TO MUTE';
+    setArc('listening');
+    // Only update resp label if it's still the default/empty state
+    var curr=g('resp').textContent;
+    if(!curr||curr==='...')setResp('Say "Hey Spydee" then your command...');
+  };
+  r.onend=function(){
+    listening=false;
+    if(muted)return;
+    clearTimeout(rstT);rstT=setTimeout(function(){if(!muted)startSR();},350);
+  };
+  return r;
+}
+function startSR(){if(listening||muted)return;if(!rec)rec=buildSR();try{rec.start();}catch(e){if(e.name!=='InvalidStateError'){clearTimeout(rstT);rstT=setTimeout(startSR,800);}}}
+function stopSR(){clearTimeout(rstT);if(rec&&listening)try{rec.abort();}catch(e){};listening=false;}
+function toggleMute(){
+  unlockAudio();muted=!muted;
+  if(muted){
+    stopSR();setArc('');
+    g('wakeBtn').className='wake-btn show';
+    g('wakeLbl').textContent='MUTED - CLICK TO RESUME';
+    setMic('wn','MIC MUTED');g('ov').classList.remove('show');
+    setResp('Microphone muted.');
+  }else startSR();
+}
+function initSR(){
+  var p=g('envPill');p.className='env-pill show sr';
+  p.textContent=(navigator.userAgent.includes('Edg/'))?'EDGE - ALWAYS-ON VOICE':'CHROME - ALWAYS-ON VOICE';
+  g('vLabel').textContent='// ALWAYS LISTENING';
+  var wb=g('wakeBtn');wb.className='wake-btn show';
+  if(navigator.userAgent.includes('Edg/')){g('wakeLbl').textContent='CLICK TO ACTIVATE';}
+  else startSR();
+}
+
+// PTT
+function initPTT(){
+  var p=g('envPill');p.className='env-pill show ptt';
+  p.textContent=IS_IOS?'iOS - HOLD TO SPEAK':IS_MOB?'MOBILE - HOLD TO SPEAK':'PUSH-TO-TALK MODE';
+  g('vLabel').textContent='// HOLD MIC TO SPEAK';
+  g('pttArea').className='ptt-area show';
+  setMic('on','PTT READY');
+  var btn=g('pttBtn');
+  btn.addEventListener('mousedown',function(e){e.preventDefault();startPTT();});
+  btn.addEventListener('mouseup',stopPTT);btn.addEventListener('mouseleave',stopPTT);
+  btn.addEventListener('touchstart',function(e){e.preventDefault();startPTT();},{passive:false});
+  btn.addEventListener('touchend',function(e){e.preventDefault();stopPTT();},{passive:false});
+  btn.addEventListener('touchcancel',function(e){e.preventDefault();stopPTT();},{passive:false});
+}
+function startPTT(){
+  if(pttOn)return;unlockAudio();pttOn=true;pttChunks=[];
+  navigator.mediaDevices.getUserMedia({audio:true,video:false}).then(function(stream){
+    pttStream=stream;
+    actx=new(window.AudioContext||window.webkitAudioContext)();
+    analyser=actx.createAnalyser();analyser.fftSize=256;
+    actx.createMediaStreamSource(stream).connect(analyser);
+    drawViz();
+    var mime=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].find(function(t){return MediaRecorder.isTypeSupported(t)})||'';
+    pttRec=new MediaRecorder(stream,mime?{mimeType:mime}:{});
+    pttRec.ondataavailable=function(e){if(e.data.size)pttChunks.push(e.data);};
+    pttRec.onstop=onPTTStop;pttRec.start(100);
+    g('pttBtn').classList.add('rec');g('pttHint').textContent='Recording... release to send';
+    g('pttHeard').textContent='';setArc('recording');setResp('Recording...');
+    setMic('off','RECORDING');
+  }).catch(function(){setResp('Microphone access denied.');setMic('off','MIC BLOCKED');pttOn=false;});
+}
+function stopPTT(){
+  if(!pttOn)return;pttOn=false;
+  if(pttRec&&pttRec.state!=='inactive')pttRec.stop();
+  if(pttStream){pttStream.getTracks().forEach(function(t){t.stop();});pttStream=null;}
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  if(actx){actx.close();actx=null;}
+  var core=document.querySelector('.arc-core');if(core)core.style.transform='';
+  g('pttBtn').classList.remove('rec');g('pttHint').textContent='HOLD TO SPEAK - RELEASE TO SEND';
+  setArc('');setResp('Processing...');setMic('on','PTT READY');
+}
+function drawViz(){
+  var data=new Uint8Array(analyser.frequencyBinCount);
+  function frame(){rafId=requestAnimationFrame(frame);analyser.getByteFrequencyData(data);
+    var avg=data.reduce(function(a,b){return a+b},0)/data.length;
+    var core=document.querySelector('.arc-core');if(core)core.style.transform='scale('+(1+avg/255*.15)+')';}
+  frame();
+}
+function onPTTStop(){
+  if(!pttChunks.length){setResp('No audio detected - try again.');return;}
+  if(SR){
+    var r=new SR();r.lang='en-US';r.interimResults=false;r.maxAlternatives=3;var got=false;
+    r.onresult=function(e){got=true;var best=e.results[0][0].transcript;
+      for(var a=0;a<e.results[0].length;a++){if(hasWake(e.results[0][a].transcript)){best=e.results[0][a].transcript;break;}}
+      g('pttHeard').textContent='"'+best+'"';handle(best);};
+    r.onerror=r.onend=function(){if(!got){setResp('Could not transcribe - type below instead.');g('ti').focus();}};
+    try{r.start();return;}catch(e){}
+  }
+  setResp('Voice unavailable - type below.');g('ti').focus();
+}
+
+// TEXT INPUT
+function sendText(){
+  unlockAudio();var v=g('ti').value.trim();if(!v)return;g('ti').value='';g('ti').style.height='';handle(v);
+}
+g('ti').addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendText();}});
+g('ti').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
+g('keyIn').addEventListener('keydown',function(e){if(e.key==='Enter')saveKey();});
+
+// TASKS
+function addTask(t){tasks.unshift(t);localStorage.setItem('st',JSON.stringify(tasks));renderTasks();updateBar();if(t.at)schedRem(t);}
+function schedRem(t){var d=new Date(t.at)-Date.now();if(d<=0){fireReminder(t.text);return;}timers[t.id]=setTimeout(function(){fireReminder(t.text);},d);}
+function toggleDone(id){tasks=tasks.map(function(t){return t.id===id?Object.assign({},t,{done:!t.done}):t;});localStorage.setItem('st',JSON.stringify(tasks));renderTasks();updateBar();}
+function delTask(id){clearTimeout(timers[id]);delete timers[id];tasks=tasks.filter(function(t){return t.id!==id;});localStorage.setItem('st',JSON.stringify(tasks));renderTasks();updateBar();}
+function rehydrate(){tasks.forEach(function(t){t.at=t.at?new Date(t.at):null;if(t.at&&!t.done&&t.at>new Date())schedRem(t);});}
+function filt(f,btn){filtMode=f;document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderTasks();}
+function renderTasks(){
+  var list=g('tlist'),f=tasks;
+  if(filtMode==='pending')f=tasks.filter(function(t){return!t.done});
+  if(filtMode==='done')f=tasks.filter(function(t){return t.done});
+  if(!f.length){list.innerHTML='<div class="no-t">No tasks here</div>';return;}
+  list.innerHTML=f.map(function(t){return'<div class="tc '+urg(t)+' '+(t.done?'done':'')+'"><div class="chk '+(t.done?'y':'')+'" onclick="toggleDone('+t.id+')"><span class="ck">&#10003;</span></div><div class="tb"><div class="tt">'+esc(t.text)+'</div><div class="tm"><span class="ts">'+esc(fmtMeta(t))+'</span>'+bdg(t)+'</div></div><button class="tdel" onclick="delTask('+t.id+')">&#10005;</button></div>';}).join('');
+}
+function urg(t){if(t.done||!t.at)return'';var m=(new Date(t.at)-Date.now())/60000;return m<60?'urg':m<240?'soon':'';}
+function bdg(t){
+  if(t.done)return'<span class="bdg bd">DONE</span>';
+  if(!t.at)return'<span class="bdg bn">NO REMINDER</span>';
+  var m=(new Date(t.at)-Date.now())/60000;
+  if(m<0)return'<span class="bdg bu">OVERDUE</span>';
+  if(m<60)return'<span class="bdg bu">SOON</span>';
+  if(m<240)return'<span class="bdg bw">TODAY</span>';
+  return'<span class="bdg bn">SCHEDULED</span>';
+}
+function fmtMeta(t){var s='Added '+fmt(new Date(t.created));if(t.at)s+=' - Reminder: '+fmt(new Date(t.at));return s;}
+function fmt(d){return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});}
+function updateBar(){var a=tasks.filter(function(t){return!t.done}).length;g('sTask').textContent=a+' TASK'+(a!==1?'S':'');g('tct').textContent=a+' ACTIVE';}
+
+// INIT - runs immediately, no timeouts, no races
+renderTasks();updateBar();rehydrate();renderMem();
+if(groqKey)g('keyIn').value=groqKey;
+if(IS_FILE&&!localStorage.getItem('fw'))g('fw').style.display='block';
+
+// The response area already has the greeting in HTML - no need to set it again
+// Just add it to the conversation log
+addMsg('s','All systems online, '+USER+'. '+SELF+' is here - what do you need?');
+
+// Pick voice mode (sync, instant)
+var useSR=HAS_SR&&!IS_IOS&&!IS_FF;
+if(useSR)initSR();else initPTT();
+
+// Verify key (async, doesn't touch resp)
+if(groqKey)verifyKey();
+
+// Show toast
+toast('SPYDEE ONLINE',useSR?'Say "Hey Spydee" to activate':'Hold mic to speak or type below');
+
+// Speak greeting (requires user gesture - will play after first interaction)
+// Use a small delay so voices can load
+setTimeout(function(){
+  speak('All systems online, '+USER+'. '+SELF+' is here - what do you need?');
+  // If AI key exists, quietly get a better greeting
+  if(groqKey&&!IS_FILE){
+    callGroq([{role:'user',content:'Give a warm, confident one-sentence greeting. Be natural.'}],60,function(res,err){
+      if(res){
+        var greet=extractMem(res);
+        g('resp').textContent=greet;
+        var msgs=g('convo').querySelectorAll('.msg.s');
+        if(msgs.length===1)msgs[0].querySelector('.mtxt').textContent=greet;
+      }
+    });
+  }
+},500);
 </script>
 </body>
 </html>
