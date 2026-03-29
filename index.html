@@ -533,7 +533,7 @@ body::after {
 
     <div class="name">SPYDEE</div>
     <div class="tagline">PERSONAL INTELLIGENCE · ALWAYS HERE</div>
-    <div id="envPill" class="env-pill sr">● INITIALIZING</div>
+    <div id="envPill" class="env-pill sr" style="display:none"></div>
   </div>
 
   <!-- STATUS -->
@@ -588,7 +588,7 @@ body::after {
     <div class="ptitle" id="vLabel">// VOICE INTERFACE — INITIALIZING</div>
 
     <div class="response-area">
-      <div class="response-text" id="resp">Initializing systems...</div>
+      <div class="response-text" id="resp"></div>
     </div>
 
     <!-- SR mode: click arc to mute -->
@@ -1121,7 +1121,7 @@ function buildSR() {
     }
     const all = (fin+itr).trim();
     if (!woke && hasWake(all)) {
-      woke=true; buf=all; setArc('wake'); setResp('Listening...');
+      woke=true; buf=all; setArc('wake'); _respLocked=false; setResp('Listening...');
       gid('overlay').classList.add('show');
       clearTimeout(cmdT);
       cmdT = setTimeout(() => { if(woke&&buf){const b=buf;reset();handle(b);} }, 3500);
@@ -1142,7 +1142,7 @@ function buildSR() {
     listening=true; gid('dMic').className='dot on'; gid('sMic').textContent='MIC ACTIVE';
     gid('wakeBtn').classList.add('on');
     gid('wakeLbl').textContent = 'ALWAYS LISTENING — TAP TO MUTE';
-    setArc('listen'); setRespStatus('Say "Hey Spydee" followed by your command...');
+    setArc('listen'); /* don't overwrite greeting in onstart */
   };
 
   r.onend = () => {
@@ -1189,12 +1189,12 @@ function onArcClick() {
 
 function initSR() {
   const pill = gid('envPill');
+  pill.style.display = '';
   pill.className = 'env-pill sr';
   pill.textContent = IS_EDGE ? '● EDGE — ALWAYS-ON' : '● CHROME — ALWAYS-ON';
   gid('vLabel').textContent = '// ALWAYS LISTENING — SAY "HEY SPYDEE" TO COMMAND';
   const wb = gid('wakeBtn'); wb.style.display='flex';
   if (IS_EDGE) {
-    setRespStatus('Tap the mic button to activate, ' + USER + '.');
     gid('wakeLbl').textContent = 'TAP TO ACTIVATE';
   } else startSR();
 }
@@ -1204,12 +1204,13 @@ function initSR() {
 ═══════════════════════════════════════════════════ */
 function initPTT() {
   const pill = gid('envPill');
+  pill.style.display = '';
   pill.className = 'env-pill ptt';
   pill.textContent = IS_IOS ? '● iOS — HOLD TO SPEAK' : IS_MOB ? '● MOBILE — HOLD TO SPEAK' : '● PUSH-TO-TALK';
   gid('vLabel').textContent = '// HOLD THE MIC BUTTON · SPEAK · RELEASE TO SEND';
   gid('pttArea').style.display='flex';
   gid('dMic').className='dot on'; gid('sMic').textContent='PTT READY';
-  setRespStatus('Hold the mic, speak your command, then release.');
+  /* greeting handles initial text */
 
   const btn = gid('pttBtn');
   btn.addEventListener('mousedown',  e=>{e.preventDefault();startPTT();});
@@ -1400,6 +1401,7 @@ renderTasks(); updateBar(); rehydrate(); renderMemory();
 if (groqKey) gid('keyIn').value = groqKey;
 
 // BOOT — show static greeting immediately so user never sees "Initializing systems..."
+// Run boot immediately — DOM is ready since scripts are at end of body
 (function boot() {
   const useSR = HAS_SR && !IS_IOS && !IS_FF;
 
