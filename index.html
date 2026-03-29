@@ -312,17 +312,11 @@ body::after {
   letter-spacing: 0.03em;
   width: 100%;
 }
-.response-text.thinking { color: var(--warn); }
-.response-text.thinking::after {
-  content: '...';
-  animation: dots 1.2s steps(4,end) infinite;
+.response-text.thinking {
+  color: var(--warn);
+  animation: thinkPulse 0.9s ease-in-out infinite;
 }
-@keyframes dots {
-  0%   { content: '.'; }
-  33%  { content: '..'; }
-  66%  { content: '...'; }
-  100% { content: ''; }
-}
+@keyframes thinkPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
 
 /* ═══════════════════════════════
    PTT BUTTON (non-SR mode)
@@ -918,10 +912,22 @@ function speak(txt, interrupt=false) {
 const gid = id => document.getElementById(id);
 const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-function setResp(txt, thinking=false) {
+let _respLocked = false;
+
+function setResp(txt, thinking=false, lock=false) {
+  if (_respLocked && !lock) return; // greeting is showing, don't overwrite
+  if (lock) _respLocked = true;
   const el = gid('resp');
-  el.textContent = txt;
+  // Never set empty text — use placeholder for thinking state
+  el.textContent = thinking ? 'Thinking...' : (txt || '...');
   el.className = 'response-text' + (thinking ? ' thinking' : '');
+  // Auto-unlock after 12s so future messages always show
+  if (lock) setTimeout(() => { _respLocked = false; }, 12000);
+}
+
+function setRespStatus(txt) {
+  // Only show status messages if no important text is locked
+  if (!_respLocked) setResp(txt);
 }
 
 function toast(title, body, rem=false) {
@@ -948,6 +954,7 @@ function addMsg(who, txt) {
 ═══════════════════════════════════════════════════ */
 async function fireReminder(text) {
   if (synth?.paused) synth.resume();
+  _respLocked = false;
   setResp('🔔 ' + text.toUpperCase());
   toast('REMINDER', text, true);
   if (Notification.permission === 'granted')
@@ -1021,7 +1028,7 @@ async function handle(raw) {
   if (!clean) return;
 
   addMsg('u', clean);
-  setResp('', true);  // thinking dots
+  setResp('On it...', true);
   setArc('think');
 
   let reply;
@@ -1075,6 +1082,7 @@ async function handle(raw) {
     }
   }
 
+  _respLocked = false;  // user command reply always shows
   setResp(reply);
   addMsg('s', reply);
   speak(reply, true);
@@ -1134,7 +1142,7 @@ function buildSR() {
     listening=true; gid('dMic').className='dot on'; gid('sMic').textContent='MIC ACTIVE';
     gid('wakeBtn').classList.add('on');
     gid('wakeLbl').textContent = 'ALWAYS LISTENING — TAP TO MUTE';
-    setArc('listen'); setResp('Say "Hey Spydee" followed by your command...');
+    setArc('listen'); setRespStatus('Say "Hey Spydee" followed by your command...');
   };
 
   r.onend = () => {
@@ -1186,7 +1194,7 @@ function initSR() {
   gid('vLabel').textContent = '// ALWAYS LISTENING — SAY "HEY SPYDEE" TO COMMAND';
   const wb = gid('wakeBtn'); wb.style.display='flex';
   if (IS_EDGE) {
-    setResp('Tap the mic button to activate, ' + USER + '.');
+    setRespStatus('Tap the mic button to activate, ' + USER + '.');
     gid('wakeLbl').textContent = 'TAP TO ACTIVATE';
   } else startSR();
 }
@@ -1201,7 +1209,7 @@ function initPTT() {
   gid('vLabel').textContent = '// HOLD THE MIC BUTTON · SPEAK · RELEASE TO SEND';
   gid('pttArea').style.display='flex';
   gid('dMic').className='dot on'; gid('sMic').textContent='PTT READY';
-  setResp('Hold the mic, speak your command, then release.');
+  setRespStatus('Hold the mic, speak your command, then release.');
 
   const btn = gid('pttBtn');
   btn.addEventListener('mousedown',  e=>{e.preventDefault();startPTT();});
@@ -1391,31 +1399,48 @@ function updateBar(){
 renderTasks(); updateBar(); rehydrate(); renderMemory();
 if (groqKey) gid('keyIn').value = groqKey;
 
-setTimeout(async () => {
-  // Pick voice mode
+// BOOT — show static greeting immediately so user never sees "Initializing systems..."
+(function boot() {
   const useSR = HAS_SR && !IS_IOS && !IS_FF;
+
+  // Step 1: Show static greeting RIGHT NOW, locked so initSR/initPTT can't overwrite it
+  const staticGreeting = `All systems online, ${USER}. ${SELF} is here — what do you need?`;
+  setResp(staticGreeting, false, true);   // locked = true
+  addMsg('s', staticGreeting);
+
+  // Step 2: Init voice (runs sync, uses setRespStatus so greeting survives)
   if (useSR) initSR(); else initPTT();
 
-  // Verify key silently
+  // Step 3: Verify key silently (no setResp inside verifyKey)
   if (groqKey) verifyKey();
 
-  // Boot greeting
-  let greeting = `All systems online, ${USER}. ${SELF} is here — what do you need?`;
-  if (groqKey && !IS_FILE) {
-    try {
-      greeting = await callGroq([{
-        role:'user',
-        content:'Give a warm, confident one-sentence boot greeting. Be natural, not robotic.'
-      }], 60);
-      greeting = extractMemory(greeting);
-    } catch(e) {}
-  }
-
-  setResp(greeting);
-  addMsg('s', greeting);
+  // Step 4: Show toast
   toast('SPYDEE ONLINE', useSR ? 'Say "Hey Spydee" to activate' : 'Hold mic to speak, or type below');
-  speak(greeting);
-}, 1000);
+
+  // Step 5: Speak the static greeting
+  speak(staticGreeting);
+
+  // Step 6: If we have a key, quietly get AI greeting and replace when ready
+  if (groqKey && !IS_FILE) {
+    callGroq([{
+      role: 'user',
+      content: 'Give a warm, confident one-sentence boot greeting to your user. Be natural, not robotic.'
+    }], 70)
+    .then(aiGreeting => {
+      aiGreeting = extractMemory(aiGreeting);
+      if (aiGreeting && aiGreeting.length > 4) {
+        // Replace the static greeting with AI one
+        const c = gid('convo');
+        const msgs = c.querySelectorAll('.msg.s');
+        if (msgs.length === 1) msgs[0].querySelector('.msg-txt').textContent = aiGreeting;
+        setResp(aiGreeting, false, true);
+        if (synth) synth.cancel();
+        speak(aiGreeting);
+      }
+    })
+    .catch(() => {}); // silently fail — static greeting already shown
+  }
+})();
 </script>
 </body>
 </html>
