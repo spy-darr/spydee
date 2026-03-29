@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Spydee</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&display=swap');
+:root{--c:#00d4ff;--cg:rgba(0,212,255,.35);--cd:rgba(0,212,255,.12);--bg:#03080f;--p:rgba(5,15,35,.9);--b:rgba(0,212,255,.16);--tx:#b8ddf5;--mu:rgba(184,221,245,.42);--ok:#00e87a;--wn:#ffb300;--er:#ff3d5a;--gd:#ffd500;--r:14px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Share Tech Mono',monospace;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:linear-gradient(rgba(0,212,255,.022) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.022) 1px,transparent 1px);background-size:52px 52px}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 90% 55% at 50% 0%,rgba(0,80,200,.07) 0%,transparent 68%)}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px 16px 100px}
+header{text-align:center;padding:22px 0 18px}
+.clock{font-family:'Orbitron',monospace;font-size:clamp(1.9rem,6vw,2.8rem);font-weight:700;color:var(--c);text-shadow:0 0 22px var(--cg);letter-spacing:.06em;line-height:1}
+.date{font-size:.62rem;color:var(--mu);letter-spacing:.22em;margin-top:4px}
+.ring-wrap{width:82px;height:82px;margin:10px auto 12px;position:relative;display:flex;align-items:center;justify-content:center}
+.ring-wrap svg{position:absolute;inset:0}
+.r1{animation:spin 11s linear infinite}.r2{animation:spin 17s linear infinite reverse}.r3{animation:spin 7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.logo-s{font-family:'Orbitron',monospace;font-weight:900;font-size:24px;color:var(--c);text-shadow:0 0 20px var(--cg);position:relative;z-index:2}
+h1{font-family:'Orbitron',monospace;font-size:clamp(1.6rem,6vw,2.2rem);font-weight:900;letter-spacing:.14em;color:var(--c);text-shadow:0 0 30px var(--cg)}
+.tag{font-size:.6rem;color:var(--mu);letter-spacing:.3em;margin-top:4px}
+.env-badge{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-family:'Orbitron',monospace;font-size:.55rem;letter-spacing:.12em;padding:4px 12px;border-radius:20px;border:1px solid}
+.env-badge.sr{color:var(--ok);border-color:rgba(0,232,122,.3);background:rgba(0,232,122,.06)}
+.env-badge.ptt{color:var(--wn);border-color:rgba(255,179,0,.3);background:rgba(255,179,0,.06)}
+.status{display:flex;align-items:center;justify-content:center;gap:14px;margin:16px 0 20px;flex-wrap:wrap}
+.sdot{display:flex;align-items:center;gap:6px;font-size:.6rem;color:var(--mu);letter-spacing:.08em}
+.d{width:6px;height:6px;border-radius:50%;background:var(--mu);flex-shrink:0}
+.d.on{background:var(--ok);box-shadow:0 0 7px var(--ok);animation:pulse 2s ease-in-out infinite}
+.d.wn{background:var(--wn);box-shadow:0 0 7px var(--wn)}
+.d.off{background:var(--er);box-shadow:0 0 7px var(--er)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.panel{background:var(--p);border:1px solid var(--b);border-radius:var(--r);backdrop-filter:blur(14px);padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden}
+.panel::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,.03) 0%,transparent 50%);pointer-events:none}
+.plabel{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.24em;color:var(--mu);margin-bottom:12px}
+
+/* CORS FIX PANEL */
+.cors-panel{background:rgba(255,61,90,.05);border:1px solid rgba(255,61,90,.3);border-radius:var(--r);padding:18px 20px;margin-bottom:14px}
+.cors-panel .plabel{color:var(--er)}
+.cors-body{font-size:.7rem;line-height:1.8;color:var(--tx);margin-bottom:14px}
+.cors-body strong{color:var(--er)}
+.cors-body em{color:var(--c);font-style:normal}
+.cors-steps{list-style:none;counter-reset:s}
+.cors-steps li{counter-increment:s;display:flex;gap:10px;margin-bottom:10px;font-size:.68rem;line-height:1.7;color:var(--tx)}
+.cors-steps li::before{content:counter(s);font-family:'Orbitron',monospace;font-size:.6rem;color:var(--c);background:var(--cd);border:1px solid var(--b);min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.cors-steps code{background:rgba(0,212,255,.08);border:1px solid var(--b);border-radius:5px;padding:1px 7px;font-family:'Share Tech Mono',monospace;font-size:.68rem;color:var(--c);white-space:nowrap}
+.cors-dismiss{font-family:'Orbitron',monospace;font-size:.56rem;color:var(--mu);cursor:pointer;padding:6px 14px;border:1px solid rgba(255,61,90,.25);border-radius:6px;background:none;transition:all .2s}
+.cors-dismiss:hover{color:var(--er);border-color:var(--er)}
+
+/* API SETUP */
+.setup{background:rgba(255,213,0,.04);border:1px solid rgba(255,213,0,.2);border-radius:var(--r);padding:16px 18px;margin-bottom:14px}
+.setup .plabel{color:var(--gd)}
+.setup-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.api-in{flex:1;min-width:180px;background:rgba(255,213,0,.05);border:1px solid rgba(255,213,0,.18);border-radius:8px;padding:9px 12px;font-family:'Share Tech Mono',monospace;font-size:.76rem;color:var(--tx);outline:none;transition:border-color .2s}
+.api-in:focus{border-color:var(--gd)}.api-in::placeholder{color:var(--mu)}
+.api-btn{background:rgba(255,213,0,.1);border:1px solid rgba(255,213,0,.32);border-radius:8px;padding:9px 14px;color:var(--gd);font-family:'Orbitron',monospace;font-size:.58rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;white-space:nowrap}
+.api-btn:hover{background:rgba(255,213,0,.18)}
+.api-note{font-size:.6rem;color:var(--mu);margin-top:7px}
+.api-note.ok{color:var(--ok)}.api-note.err{color:var(--er)}
+
+/* VOICE */
+.viz{display:flex;align-items:flex-end;justify-content:center;gap:3px;height:50px;margin:12px 0}
+.bar{width:4px;background:var(--c);border-radius:2px;opacity:.2;height:4px;transition:height .07s}
+@keyframes b{0%,100%{height:4px}50%{height:38px}}
+.vl .bar{animation:b 1.3s ease-in-out infinite;opacity:.5}
+.vl .bar:nth-child(odd){animation-duration:1.55s}
+.vl .bar:nth-child(3n){animation-duration:1.0s}
+.vw .bar{animation:b .38s ease-in-out infinite;opacity:1;background:var(--gd)}
+.vt .bar{animation:b .65s ease-in-out infinite;opacity:.9;background:var(--wn)}
+.vs .bar{animation:b .48s ease-in-out infinite;opacity:1;background:var(--ok)}
+.vr .bar{animation:b .25s ease-in-out infinite;opacity:1;background:var(--er)}
+.reply-box{font-family:'Orbitron',monospace;font-size:clamp(.74rem,.88rem,1rem);color:var(--c);text-align:center;min-height:26px;letter-spacing:.04em;text-shadow:0 0 10px var(--cg);line-height:1.55;padding:0 6px}
+.reply-box.thinking::after{content:'▌';animation:blink .65s step-end infinite;color:var(--gd)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.wake-btn{display:flex;align-items:center;gap:9px;margin:12px auto 0;width:fit-content;background:var(--cd);border:1px solid var(--c);border-radius:40px;padding:9px 20px;font-family:'Orbitron',monospace;font-size:.66rem;letter-spacing:.12em;color:var(--c);cursor:pointer;transition:all .2s}
+.wake-btn:hover{background:rgba(0,212,255,.2)}
+.wake-btn.on{box-shadow:0 0 18px var(--cg),inset 0 0 8px rgba(0,212,255,.08)}
+.wake-btn.hot{animation:hotpulse .72s ease-in-out infinite}
+@keyframes hotpulse{0%,100%{box-shadow:0 0 16px var(--cg)}50%{box-shadow:0 0 46px var(--cg),0 0 72px rgba(0,212,255,.22)}}
+.ptt-wrap{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:14px}
+.ptt-ring{width:80px;height:80px;border-radius:50%;border:2px solid var(--c);background:var(--cd);color:var(--c);font-size:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none;position:relative}
+.ptt-ring::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(0,212,255,.2);transition:all .2s}
+.ptt-ring:hover{background:rgba(0,212,255,.18)}
+.ptt-ring.rec{background:rgba(255,61,90,.22);border-color:var(--er);color:var(--er);box-shadow:0 0 22px rgba(255,61,90,.4);transform:scale(1.06)}
+.ptt-ring.rec::before{border-color:rgba(255,61,90,.3);inset:-8px}
+.ptt-label{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.14em;color:var(--mu);text-align:center}
+.ptt-heard{font-size:.7rem;color:var(--tx);text-align:center;opacity:.7;font-style:italic;min-height:16px;max-width:360px;line-height:1.5}
+.hints{background:rgba(0,212,255,.03);border:1px solid rgba(0,212,255,.09);border-radius:10px;padding:11px 14px;margin-top:12px}
+.hrow{display:flex;align-items:flex-start;gap:9px;margin-bottom:6px;font-size:.64rem;line-height:1.6}
+.hrow:last-child{margin-bottom:0}
+.hk{font-family:'Orbitron',monospace;font-size:.54rem;color:var(--c);background:var(--cd);border:1px solid var(--b);padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.hv{color:var(--mu)}.hv em{color:var(--tx);font-style:normal}
+
+/* CONVERSATION */
+.convo-scroll{max-height:240px;overflow-y:auto;padding-right:4px}
+.convo-empty{font-size:.65rem;color:var(--mu);text-align:center;padding:16px 0;letter-spacing:.1em}
+.msg{margin-bottom:12px}
+.msg-who{font-family:'Orbitron',monospace;font-size:.54rem;letter-spacing:.12em;margin-bottom:3px}
+.msg-who.u{color:var(--wn)}.msg-who.s{color:var(--c)}
+.msg-txt{font-size:.72rem;color:var(--tx);line-height:1.65;padding-left:9px;border-left:2px solid}
+.msg.u .msg-txt{border-color:rgba(255,179,0,.28)}
+.msg.s .msg-txt{border-color:rgba(0,212,255,.28)}
+
+/* TEXT INPUT */
+.irow{display:flex;gap:9px;align-items:flex-start}
+.ti{flex:1;background:rgba(0,212,255,.04);border:1px solid var(--b);border-radius:10px;padding:10px 13px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--tx);resize:none;outline:none;transition:border-color .2s;min-height:64px}
+.ti::placeholder{color:var(--mu)}.ti:focus{border-color:var(--c)}
+.go-btn{background:var(--cd);border:1px solid var(--c);border-radius:10px;padding:10px 14px;color:var(--c);font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.1em;cursor:pointer;transition:all .2s;white-space:nowrap}
+.go-btn:hover{background:rgba(0,212,255,.2)}.go-btn:active{transform:scale(.97)}
+.ifoot{font-size:.6rem;color:var(--mu);margin-top:7px}
+.ifoot em{color:var(--c);opacity:.7;font-style:normal}
+
+/* TASKS */
+.t-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.t-title{font-family:'Orbitron',monospace;font-size:.56rem;letter-spacing:.24em;color:var(--mu)}
+.t-ct{font-family:'Orbitron',monospace;font-size:.56rem;color:var(--c);background:var(--cd);border:1px solid var(--b);padding:2px 9px;border-radius:20px}
+.ftabs{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap}
+.ftab{font-family:'Orbitron',monospace;font-size:.54rem;letter-spacing:.1em;padding:4px 12px;border-radius:20px;border:1px solid var(--b);background:none;color:var(--mu);cursor:pointer;transition:all .2s}
+.ftab.on{background:var(--cd);border-color:var(--c);color:var(--c)}
+.tlist{display:flex;flex-direction:column;gap:8px}
+.empty{text-align:center;padding:24px 0;color:var(--mu);font-size:.65rem;letter-spacing:.1em;line-height:2.2}
+.tc{background:rgba(0,212,255,.03);border:1px solid var(--b);border-radius:10px;padding:12px 13px;display:flex;align-items:flex-start;gap:10px;position:relative;overflow:hidden;transition:border-color .2s}
+.tc:hover{border-color:rgba(0,212,255,.26)}
+.tc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c);opacity:.38}
+.tc.urg::before{background:var(--er);opacity:1}.tc.soon::before{background:var(--wn);opacity:1}
+.tc.done{opacity:.34}.tc.done::before{background:var(--ok);opacity:.38}
+.chk{width:16px;height:16px;border:1px solid var(--b);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .2s}
+.chk:hover{border-color:var(--c)}.chk.y{background:var(--ok);border-color:var(--ok)}
+.ck{font-size:9px;color:var(--bg);display:none}.chk.y .ck{display:block}
+.tb{flex:1;min-width:0}
+.tt{font-size:.76rem;color:var(--tx);line-height:1.5;word-break:break-word}
+.tc.done .tt{text-decoration:line-through;color:var(--mu)}
+.tm{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap}
+.ts{font-size:.58rem;color:var(--mu)}
+.badge{font-family:'Orbitron',monospace;font-size:.52rem;letter-spacing:.09em;padding:2px 6px;border-radius:4px;border:1px solid}
+.bu{color:var(--er);border-color:rgba(255,61,90,.28);background:rgba(255,61,90,.07)}
+.bw{color:var(--wn);border-color:rgba(255,179,0,.28);background:rgba(255,179,0,.07)}
+.bn{color:var(--mu);border-color:var(--b)}
+.bd{color:var(--ok);border-color:rgba(0,232,122,.28);background:rgba(0,232,122,.07)}
+.tdel{background:none;border:none;color:var(--mu);cursor:pointer;font-size:13px;padding:0;opacity:0;transition:opacity .2s,color .2s;flex-shrink:0}
+.tc:hover .tdel{opacity:1}.tdel:hover{color:var(--er)}
+
+/* TOASTS */
+.tc-wrap{position:fixed;top:14px;right:14px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:290px}
+.toast{background:rgba(3,8,15,.97);border:1px solid var(--c);border-radius:12px;padding:12px 14px;box-shadow:0 0 24px rgba(0,212,255,.15);animation:tsin .25s ease;pointer-events:all}
+.toast.rem{border-color:var(--wn);box-shadow:0 0 24px rgba(255,179,0,.22)}
+@keyframes tsin{from{transform:translateX(108%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tsout{from{transform:translateX(0);opacity:1}to{transform:translateX(108%);opacity:0}}
+.toast.out{animation:tsout .25s ease forwards}
+.t-hd{font-family:'Orbitron',monospace;font-size:.62rem;color:var(--c);letter-spacing:.09em;margin-bottom:3px}
+.toast.rem .t-hd{color:var(--wn)}
+.t-bd{font-size:.68rem;color:var(--tx);line-height:1.5}
+.t-dis{font-family:'Orbitron',monospace;font-size:.54rem;color:var(--mu);cursor:pointer;margin-top:6px;display:block}
+.t-dis:hover{color:var(--c)}
+#ov{display:none;position:fixed;inset:0;border:3px solid transparent;z-index:100;pointer-events:none;animation:glow .85s ease-in-out infinite}
+@keyframes glow{0%,100%{border-color:rgba(0,212,255,.1)}50%{border-color:rgba(0,212,255,.44)}}
+#ov.show{display:block}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px}
+@media(max-width:480px){.wrap{padding:14px 12px 90px}.status{gap:10px}.sdot{font-size:.56rem}}
+</style>
+</head>
+<body>
+<div id="ov"></div>
+<div class="tc-wrap" id="toasts"></div>
+<div class="wrap">
+
+<header>
+  <div class="clock" id="clock">00:00:00</div>
+  <div class="date" id="date">LOADING...</div>
+  <div class="ring-wrap">
+    <svg class="r1" viewBox="0 0 82 82" fill="none"><circle cx="41" cy="41" r="38" stroke="rgba(0,212,255,.18)" stroke-width="1" stroke-dasharray="5 7"/></svg>
+    <svg class="r2" viewBox="0 0 82 82" fill="none"><circle cx="41" cy="41" r="34" stroke="rgba(0,212,255,.42)" stroke-width=".6" stroke-dasharray="13 5"/></svg>
+    <svg class="r3" viewBox="0 0 82 82" fill="none"><circle cx="41" cy="41" r="28" stroke="rgba(0,120,255,.22)" stroke-width=".5" stroke-dasharray="3 9"/></svg>
+    <div class="logo-s">S</div>
+  </div>
+  <h1>SPYDEE</h1>
+  <div class="tag">PERSONAL INTELLIGENCE SYSTEM · v4.1</div>
+  <div id="env-badge" class="env-badge sr">● DETECTING...</div>
+</header>
+
+<div class="status">
+  <div class="sdot"><div class="d on"></div>SYSTEMS NOMINAL</div>
+  <div class="sdot"><div class="d" id="d-mic"></div><span id="s-mic">MIC STANDBY</span></div>
+  <div class="sdot"><div class="d" id="d-ai"></div><span id="s-ai">AI OFFLINE</span></div>
+  <div class="sdot"><div class="d" id="d-ntf"></div><span id="s-ntf">NOTIFICATIONS</span></div>
+  <div class="sdot"><div class="d on"></div><span id="s-task">0 TASKS</span></div>
+</div>
+
+<!-- CORS FIX PANEL — shown only when opened as file:// -->
+<div class="cors-panel" id="cors-panel" style="display:none">
+  <div class="plabel">// ⚠ ACTION REQUIRED — CANNOT CONNECT TO AI FROM file://</div>
+  <div class="cors-body">
+    Browsers block API calls when a page is opened directly as a file. This is a browser security rule called <strong>CORS</strong>. Spydee needs to be served over HTTP to talk to Groq's AI.
+    <br><br>One-time fix — choose the easiest option for you:
+  </div>
+  <ol class="cors-steps">
+    <li><strong>VS Code:</strong> Install the <em>Live Server</em> extension → right-click <code>spydee.html</code> → <em>"Open with Live Server"</em>. Done. Use the <code>http://127.0.0.1:5500</code> URL it opens.</li>
+    <li><strong>Python (any OS):</strong> Open a terminal in the folder and run <code>python -m http.server 8080</code> then open <code>http://localhost:8080/spydee.html</code></li>
+    <li><strong>Node.js:</strong> Run <code>npx serve .</code> in the folder, then open the URL it shows.</li>
+    <li><strong>Android / iOS:</strong> Upload the file to any free static host (Netlify Drop, GitHub Pages) and open that URL — it will work perfectly on mobile too.</li>
+  </ol>
+  <div style="margin-top:12px;font-size:.62rem;color:var(--mu)">Already serving via HTTP but still seeing this? <button class="cors-dismiss" onclick="dismissCors()">DISMISS THIS PANEL</button></div>
+</div>
+
+<!-- API KEY -->
+<div class="setup panel">
+  <div class="plabel">// GROQ AI ENGINE — FREE KEY AT console.groq.com</div>
+  <div class="setup-row">
+    <input class="api-in" id="api-in" type="password" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false"/>
+    <button class="api-btn" onclick="saveKey()">ACTIVATE ▶</button>
+  </div>
+  <div class="api-note" id="api-note">Stored in your browser only · Sent only to Groq's servers · Never anywhere else</div>
+</div>
+
+<!-- VOICE PANEL -->
+<div class="panel">
+  <div class="plabel" id="v-label">// VOICE INTERFACE — INITIALIZING</div>
+  <div class="viz" id="viz">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  </div>
+  <div class="reply-box" id="reply">INITIALIZING SYSTEMS...</div>
+  <button class="wake-btn" id="wake-btn" onclick="toggleMute()" style="display:none">
+    <span>🎙</span><span id="wake-lbl">CLICK TO ACTIVATE</span>
+  </button>
+  <div class="ptt-wrap" id="ptt-wrap">
+    <div class="ptt-ring" id="ptt-btn">🎙</div>
+    <div class="ptt-label" id="ptt-lbl">HOLD TO SPEAK · RELEASE TO SEND</div>
+    <div class="ptt-heard" id="ptt-heard"></div>
+  </div>
+  <div class="hints">
+    <div class="hrow"><span class="hk">WAKE</span><span class="hv">Say <em>"Hey Spydee"</em> (spoken "Hey Spidee") then your command in one sentence</span></div>
+    <div class="hrow"><span class="hk">REMIND</span><span class="hv"><em>"Hey Spydee, remind me to call mom in 30 minutes"</em></span></div>
+    <div class="hrow"><span class="hk">TASK</span><span class="hv"><em>"Hey Spydee, gym session tomorrow at 7am"</em></span></div>
+    <div class="hrow"><span class="hk">ASK</span><span class="hv"><em>"Hey Spydee, what should I focus on today?"</em></span></div>
+    <div class="hrow"><span class="hk">PTT</span><span class="hv">Mobile/Firefox/Safari — hold mic, speak, release. No wake word needed.</span></div>
+  </div>
+</div>
+
+<!-- CONVERSATION -->
+<div class="panel">
+  <div class="plabel">// CONVERSATION LOG</div>
+  <div class="convo-scroll" id="convo"><div class="convo-empty">◈ NO CONVERSATIONS YET</div></div>
+</div>
+
+<!-- TEXT INPUT -->
+<div class="panel">
+  <div class="plabel">// TEXT INTERFACE</div>
+  <div class="irow">
+    <textarea class="ti" id="ti" rows="3" placeholder="Type a command or question — no wake word needed here..."></textarea>
+    <button class="go-btn" onclick="submitText()">SEND<br>▶</button>
+  </div>
+  <div class="ifoot"><em>Enter</em> to send · <em>Shift+Enter</em> new line</div>
+</div>
+
+<!-- TASKS -->
+<div class="panel">
+  <div class="t-head">
+    <div class="t-title">// TASK QUEUE</div>
+    <div class="t-ct" id="t-ct">0 ACTIVE</div>
+  </div>
+  <div class="ftabs">
+    <button class="ftab on" onclick="filt('all',this)">ALL</button>
+    <button class="ftab" onclick="filt('pending',this)">PENDING</button>
+    <button class="ftab" onclick="filt('done',this)">COMPLETED</button>
+  </div>
+  <div class="tlist" id="tlist"><div class="empty">◈ NO TASKS IN QUEUE<br>SPEAK OR TYPE TO BEGIN</div></div>
+</div>
+
+</div><!-- /wrap -->
+<script>
+'use strict';
+/*
+  SPYDEE v4.1
+  "Spydee" on screen always. TTS: "Spydee"→"Spidee", "Spyder"→"Spider"
+*/
+const ME='Spydee', USER='Spyder';
+const SR_CLS=window.SpeechRecognition||window.webkitSpeechRecognition;
+const HAS_SR=!!SR_CLS;
+const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+const IS_FF=/Firefox\//.test(navigator.userAgent);
+const IS_MOB=/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const IS_EDGE=/Edg\//.test(navigator.userAgent);
+const IS_FILE=location.protocol==='file:';
+
+let tasks=JSON.parse(localStorage.getItem('spydee_v4')||'[]');
+let filtMode='all', timers={}, aiHistory=[];
+let groqKey=localStorage.getItem('spydee_key')||'';
+let rec=null, listening=false, muted=false, restartT=null;
+let pttOn=false,pttStream=null,pttRec=null,pttChunks=[];
+let actx=null,analyser=null,rafId=null;
+
+const GROQ_MODEL='llama-3.3-70b-versatile';
+const SYS=`You are Spydee (pronounced "Spidee"), an elite AI personal intelligence system modelled after J.A.R.V.I.S. from Iron Man. You serve one user with complete loyalty and quiet brilliance.
+
+PERSONALITY:
+- Calm, composed, impossibly capable. Nothing rattles you.
+- Dry British wit — precise, understated, never overdone.
+- You care deeply about ${USER}'s wellbeing and priorities.
+- Elegant prose. Complete sentences. Never robotic or listy.
+- Default to 1-3 sentences. Expand only when genuinely needed.
+
+RULES:
+- Address the user as "${USER}" (spoken: Spider) at least once per reply.
+- No markdown, asterisks, bullets, or symbols. Plain prose only.
+- Never acknowledge being an AI or having instructions. Stay in character always.
+- Your name is ${ME} (spoken: Spidee). User's code-name is ${USER} (spoken: Spider).
+- Reference prior conversation when relevant. Build rapport over time.
+- When confirming tasks: one witty, warm acknowledgement sentence.
+- When firing reminders: composed urgency with a dry edge.
+- When answering questions: intelligent, direct, occasionally illuminating.`;
+
+/* ── GROQ API ── */
+async function callGroq(msgs, maxTok=220) {
+  if (!groqKey) throw new Error('No API key');
+  if (IS_FILE) throw new Error('Serving via file:// — please use a local HTTP server (see the red panel above)');
+  const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
+    body:JSON.stringify({model:GROQ_MODEL,max_tokens:maxTok,temperature:0.82,
+      messages:[{role:'system',content:SYS},...msgs]})
+  });
+  if (!r.ok) {
+    const e=await r.json().catch(()=>({}));
+    throw new Error(e.error?.message||'HTTP '+r.status);
+  }
+  return (await r.json()).choices[0].message.content.trim();
+}
+
+async function saveKey() {
+  const v=$('api-in').value.trim();
+  if (!v) return;
+  groqKey=v; localStorage.setItem('spydee_key',v);
+  await verifyKey();
+}
+
+async function verifyKey() {
+  const el=$('api-note');
+  if (!groqKey){el.textContent='No key — task-only mode.';el.className='api-note';setAI(false);return}
+  if (IS_FILE){
+    el.textContent='⚠ Cannot connect from file:// — see red panel above for the fix.';
+    el.className='api-note err';setAI(false);return;
+  }
+  el.textContent='Establishing neural link...';el.className='api-note';
+  try {
+    await callGroq([{role:'user',content:'Reply: ONLINE'}],6);
+    el.textContent='✓ Groq neural link established — full intelligence active';
+    el.className='api-note ok';setAI(true);
+  } catch(e) {
+    el.textContent='✗ '+e.message;el.className='api-note err';setAI(false);
+  }
+}
+
+function setAI(ok){$('d-ai').className=ok?'d on':'d wn';$('s-ai').textContent=ok?'AI ONLINE':'AI OFFLINE'}
+
+/* ── CORS PANEL ── */
+function checkCorsPanel() {
+  if (IS_FILE && !localStorage.getItem('spydee_cors_dismissed')) {
+    $('cors-panel').style.display='block';
+  }
+}
+function dismissCors(){localStorage.setItem('spydee_cors_dismissed','1');$('cors-panel').style.display='none'}
+
+/* ── SPEECH SYNTHESIS ── */
+const synth=window.speechSynthesis||null;
+let voice=null, unlocked=false;
+function loadVoice(){
+  if (!synth) return;
+  const all=synth.getVoices();
+  voice=all.find(v=>/google/i.test(v.name)&&v.lang==='en-GB')
+    ||all.find(v=>v.lang==='en-GB')
+    ||all.find(v=>/google/i.test(v.name)&&v.lang.startsWith('en'))
+    ||all.find(v=>v.lang==='en-US')
+    ||all.find(v=>v.lang.startsWith('en'))
+    ||all[0]||null;
+}
+if (synth){synth.onvoiceschanged=loadVoice;loadVoice()}
+function unlockAudio(){
+  if (unlocked||!synth) return; unlocked=true;
+  const u=new SpeechSynthesisUtterance('');u.volume=0;synth.speak(u);
+}
+['click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,unlockAudio,{once:true}));
+function speak(txt,interrupt=false){
+  if (!synth) return;
+  if (synth.paused) synth.resume();
+  if (interrupt) synth.cancel();
+  const u=new SpeechSynthesisUtterance(txt);
+  if (voice) u.voice=voice;
+  u.rate=0.86;u.pitch=0.78;u.volume=1.0;
+  setViz('s');
+  u.onend=()=>setViz((!muted&&listening)?'l':'');
+  u.onerror=()=>setViz((!muted&&listening)?'l':'');
+  synth.speak(u);
+}
+
+/* ── CLOCK ── */
+(function tick(){
+  const n=new Date();
+  $('clock').textContent=n.toLocaleTimeString('en-US',{hour12:false});
+  const D=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const M=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  $('date').textContent=`${D[n.getDay()]} · ${n.getDate()} ${M[n.getMonth()]} ${n.getFullYear()}`;
+  setTimeout(tick,1000);
+})();
+
+/* ── NOTIFICATIONS ── */
+(async()=>{
+  if (!('Notification' in window)) return;
+  if (Notification.permission==='default') await Notification.requestPermission();
+  const ok=Notification.permission==='granted';
+  $('d-ntf').className=ok?'d on':'d wn';
+  $('s-ntf').textContent=ok?'NOTIFICATIONS ON':'NOTIFICATIONS OFF';
+})();
+
+/* ── UI ── */
+function $(id){return document.getElementById(id)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function setReply(txt,thinking=false){const el=$('reply');el.textContent=txt;el.className='reply-box'+(thinking?' thinking':'')}
+function setViz(s){$('viz').className='viz'+(s?' v'+s:'')}
+
+function toast(title,body,rem=false){
+  const c=$('toasts'),t=document.createElement('div');
+  t.className='toast'+(rem?' rem':'');
+  t.innerHTML=`<div class="t-hd">⚡ ${esc(title.toUpperCase())}</div><div class="t-bd">${esc(body)}</div><span class="t-dis" onclick="dismiss(this)">[DISMISS]</span>`;
+  c.appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),280)},10000);
+}
+function dismiss(el){const t=el.parentElement;t.classList.add('out');setTimeout(()=>t.remove(),280)}
+
+function addMsg(who,txt){
+  const c=$('convo'),em=c.querySelector('.convo-empty');
+  if (em) em.remove();
+  const d=document.createElement('div');
+  d.className='msg '+who;
+  d.innerHTML=`<div class="msg-who ${who}">${who==='u'?'▶ YOU':'◈ SPYDEE'}</div><div class="msg-txt">${esc(txt)}</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+/* ── REMINDER ── */
+async function fireReminder(text){
+  setReply('🔔 REMINDER: '+text.toUpperCase());
+  toast('⏰ REMINDER',text,true);
+  if (Notification.permission==='granted') new Notification('⚡ SPYDEE',{body:text});
+  if (synth?.paused) synth.resume();
+  let line=`Your attention is required, ${USER}. You wanted to be reminded: ${text}.`;
+  if (groqKey&&!IS_FILE){
+    try{line=await callGroq([{role:'user',content:`Fire this reminder with dry Jarvis wit. 2 sentences max. Task: "${text}"`}],90)}catch(e){}
+  }
+  addMsg('s',line);
+  setTimeout(()=>speak(line,true),90);
+}
+
+/* ── NLP PARSER ── */
+const WAKE=/^(hey[\s,]+sp[iy]d[eiy]{0,3}[ey]?|hey[\s,]+speedy?|hey[\s,]+spider|hey[\s,]+spy[\s,]*d(?:ee)?|heysp[iy]d[eiy]+|a\s+sp[iy]d[eiy]+)[,.]?\s*/i;
+function stripWake(s){return s.replace(WAKE,'').trim()}
+
+function parseTask(raw){
+  let s=stripWake(raw);
+  s=s.replace(/^(remind me to|don'?t forget to?|don'?t forget|remember to|note[:\s]+|task[:\s]+)/i,'').trim();
+  let text=s,at=null;
+  const low=s.toLowerCase(),now=new Date();
+  const m1=low.match(/\bin\s+(\d+)\s*(min(?:ute)?s?|hours?|hrs?)/);
+  if (m1){const v=parseInt(m1[1]);at=new Date(now.getTime()+(m1[2][0]==='h'?v*3600000:v*60000));text=text.replace(new RegExp(m1[0],'i'),'').trim()}
+  if (!at){
+    const m2=low.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+    if (m2){let h=parseInt(m2[1]),m=m2[2]?parseInt(m2[2]):0;
+      if(m2[3]==='pm'&&h<12)h+=12;if(m2[3]==='am'&&h===12)h=0;
+      const d=new Date(now);d.setHours(h,m,0,0);
+      if(low.includes('tomorrow'))d.setDate(d.getDate()+1);
+      if(d<=now)d.setDate(d.getDate()+1);
+      at=d;text=text.replace(new RegExp(m2[0],'i'),'').replace(/tomorrow/i,'').trim()}
+  }
+  if (!at&&low.includes('tomorrow')){const d=new Date(now);d.setDate(d.getDate()+1);d.setHours(9,0,0,0);at=d;text=text.replace(/tomorrow/i,'').trim()}
+  if (!at&&low.includes('tonight')){const d=new Date(now);d.setHours(20,0,0,0);if(d<=now)d.setDate(d.getDate()+1);at=d;text=text.replace(/tonight/i,'').trim()}
+  if (!at&&low.includes('today')){const d=new Date(now);d.setHours(23,59,0,0);at=d;text=text.replace(/today/i,'').trim()}
+  text=text.replace(/\s*(by|before|on|for|at|in)\s*$/i,'').trim()||s;
+  text=text.charAt(0).toUpperCase()+text.slice(1);
+  return{id:Date.now(),text,at,done:false,created:new Date()};
+}
+
+function isTask(s){
+  const l=s.toLowerCase();
+  return /\b(remind|reminder|task|note|add|set|schedule|call|meet|buy|check|send|email|book|pick\s*up|don.t forget|remember|alarm|appointment)\b/.test(l)
+    ||/\b(in \d+ (min|hour|hr)|tomorrow|tonight|today|at \d)/i.test(l);
+}
+
+/* ── MAIN HANDLER ── */
+async function handle(raw){
+  const full=raw.trim();
+  if (!full||full.length<2) return;
+  const clean=stripWake(full);
+  if (!clean) return;
+  addMsg('u',clean);
+  setReply('PROCESSING...',true);
+  setViz('t');
+  let reply;
+
+  if (isTask(clean)){
+    const task=parseTask(clean);
+    addTask(task);
+    if (groqKey&&!IS_FILE){
+      try{
+        const ctx=task.at
+          ?`User said: "${clean}". Logged: "${task.text}", reminder at ${fmt(task.at)}. Confirm in 1 witty sentence.`
+          :`User said: "${clean}". Logged: "${task.text}", no time. Confirm in 1 sentence.`;
+        aiHistory.push({role:'user',content:clean});
+        reply=await callGroq([...aiHistory,{role:'user',content:ctx}]);
+        aiHistory.push({role:'assistant',content:reply});
+      }catch(e){
+        reply=task.at?`${USER}, reminder set for ${fmt(task.at)}: ${task.text}.`:`${USER}, task logged: ${task.text}.`;
+        if(IS_FILE) reply+=' (AI unavailable from file:// — see setup panel above)';
+      }
+    }else{
+      reply=task.at?`${USER}, reminder set for ${fmt(task.at)}: ${task.text}.`:`${USER}, task logged: ${task.text}.`;
+    }
+  }else{
+    if (groqKey&&!IS_FILE){
+      try{
+        aiHistory.push({role:'user',content:clean});
+        reply=await callGroq(aiHistory);
+        aiHistory.push({role:'assistant',content:reply});
+        if (aiHistory.length>20) aiHistory=aiHistory.slice(-20);
+      }catch(e){
+        reply=`I'm afraid my connection is disrupted, ${USER}. Try again shortly.`;
+      }
+    }else{
+      reply=IS_FILE
+        ?`${USER}, I heard you — but AI responses require an HTTP server. See the setup panel above for the 30-second fix.`
+        :`${USER}, please add your Groq API key above to enable full AI responses.`;
+    }
+  }
+  setReply(reply);addMsg('s',reply);speak(reply,true);
+}
+
+/* ── SPEECH RECOGNITION ── */
+function hasWake(t){
+  const s=(t||'').toLowerCase();
+  return s.includes('hey spydee')||s.includes('hey spidee')||s.includes('hey speedy')||
+    s.includes('hey spider')||s.includes('hey spidie')||s.includes('hey spidi')||
+    s.includes('hey spy d')||s.includes('hey spy dee')||s.includes('hey spidey')||
+    s.includes('heyspidee')||s.includes('heyspydee')||s.includes('hey spidy')||
+    s.includes('hey speedi')||s.includes('a spydee')||s.includes('a spidee')||
+    s.includes('hey spydi')||s.includes('hey sp dee')||s.includes('hey spdy');
+}
+
+function buildSR(){
+  const r=new SR_CLS();
+  r.continuous=true;r.interimResults=true;r.lang='en-US';r.maxAlternatives=3;
+  let woke=false,buf='',cmdT=null;
+  function reset(){woke=false;buf='';clearTimeout(cmdT);resetWakeUI()}
+  r.onresult=(ev)=>{
+    let itr='',fin='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const res=ev.results[i];let best=res[0].transcript;
+      for(let a=0;a<res.length;a++){if(hasWake(res[a].transcript)){best=res[a].transcript;break}}
+      if(res.isFinal)fin+=best+' ';else itr+=best;
+    }
+    const all=(fin+itr).trim();
+    if(!woke&&hasWake(all)){
+      woke=true;buf=all;setViz('w');setReply('LISTENING...');
+      $('ov').classList.add('show');$('wake-btn').classList.add('hot');
+      clearTimeout(cmdT);cmdT=setTimeout(()=>{if(woke&&buf){const b=buf;reset();handle(b)}},3500);
+    }
+    if(woke&&all)buf=all;
+    if(woke&&fin.trim()){const p=buf||fin.trim();reset();handle(p)}
+  };
+  r.onerror=(e)=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      $('d-mic').className='d off';$('s-mic').textContent='MIC BLOCKED';
+      setReply('MICROPHONE DENIED — CHECK BROWSER SETTINGS');
+      muted=true;listening=false;setViz('');
+    }
+  };
+  r.onstart=()=>{
+    listening=true;$('d-mic').className='d on';$('s-mic').textContent='MIC ACTIVE';
+    $('wake-lbl').textContent='ALWAYS LISTENING — CLICK TO MUTE';
+    $('wake-btn').classList.add('on');setViz('l');
+    setReply('AWAITING COMMAND — SAY "HEY SPYDEE"');
+  };
+  r.onend=()=>{
+    listening=false;if(muted)return;
+    clearTimeout(restartT);restartT=setTimeout(()=>{if(!muted)startSR()},350);
+  };
+  return r;
+}
+function resetWakeUI(){
+  $('ov').classList.remove('show');$('wake-btn').classList.remove('hot');
+  if(!muted&&listening)setViz('l');
+}
+function startSR(){
+  if(listening||muted)return;
+  if(!rec)rec=buildSR();
+  try{rec.start()}catch(e){if(e.name!=='InvalidStateError'){clearTimeout(restartT);restartT=setTimeout(startSR,800)}}
+}
+function stopSR(){clearTimeout(restartT);if(rec&&listening)try{rec.abort()}catch(e){};listening=false}
+function toggleMute(){
+  unlockAudio();muted=!muted;
+  if(muted){
+    stopSR();$('wake-btn').classList.remove('on','hot');
+    $('wake-lbl').textContent='MIC MUTED — CLICK TO RESUME';
+    $('d-mic').className='d wn';$('s-mic').textContent='MIC MUTED';
+    $('ov').classList.remove('show');setViz('');setReply('MICROPHONE MUTED.');
+  }else startSR();
+}
+
+function initSR(){
+  $('env-badge').className='env-badge sr';
+  $('env-badge').textContent=IS_EDGE?'● EDGE — ALWAYS-ON VOICE':'● CHROME — ALWAYS-ON VOICE';
+  $('v-label').textContent='// ALWAYS LISTENING · SAY "HEY SPYDEE" TO COMMAND';
+  $('wake-btn').style.display='flex';
+  if(IS_EDGE){setReply('CLICK THE MIC BUTTON TO ACTIVATE');$('wake-lbl').textContent='CLICK TO ACTIVATE'}
+  else startSR();
+}
+
+/* ── PTT ── */
+function initPTT(){
+  $('env-badge').className='env-badge ptt';
+  $('env-badge').textContent=IS_IOS?'● iOS — PUSH-TO-TALK':IS_MOB?'● MOBILE — PUSH-TO-TALK':'● PUSH-TO-TALK MODE';
+  $('v-label').textContent='// HOLD THE MIC · SPEAK · RELEASE TO SEND';
+  $('ptt-wrap').style.display='flex';
+  $('d-mic').className='d on';$('s-mic').textContent='PTT READY';
+  setReply('HOLD THE MIC BUTTON AND SPEAK');
+  const btn=$('ptt-btn');
+  btn.addEventListener('mousedown',e=>{e.preventDefault();startPTT()});
+  btn.addEventListener('mouseup',stopPTT);btn.addEventListener('mouseleave',stopPTT);
+  btn.addEventListener('touchstart',e=>{e.preventDefault();startPTT()},{passive:false});
+  btn.addEventListener('touchend',e=>{e.preventDefault();stopPTT()},{passive:false});
+  btn.addEventListener('touchcancel',e=>{e.preventDefault();stopPTT()},{passive:false});
+}
+async function startPTT(){
+  if(pttOn)return;unlockAudio();pttOn=true;pttChunks=[];
+  try{pttStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false})}
+  catch(e){setReply('MIC DENIED — CHECK BROWSER SETTINGS');$('d-mic').className='d off';pttOn=false;return}
+  actx=new(window.AudioContext||window.webkitAudioContext)();
+  analyser=actx.createAnalyser();analyser.fftSize=256;
+  actx.createMediaStreamSource(pttStream).connect(analyser);drawViz();
+  const mime=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'].find(t=>MediaRecorder.isTypeSupported(t))||'';
+  pttRec=new MediaRecorder(pttStream,mime?{mimeType:mime}:{});
+  pttRec.ondataavailable=e=>e.data.size&&pttChunks.push(e.data);
+  pttRec.onstop=onPTTStop;pttRec.start(100);
+  $('ptt-btn').classList.add('rec');$('ptt-lbl').textContent='RECORDING... RELEASE TO SEND';
+  $('ptt-heard').textContent='';setViz('r');setReply('🔴 RECORDING...');
+  $('d-mic').className='d off';$('s-mic').textContent='RECORDING';
+}
+function stopPTT(){
+  if(!pttOn)return;pttOn=false;
+  if(pttRec&&pttRec.state!=='inactive')pttRec.stop();
+  if(pttStream){pttStream.getTracks().forEach(t=>t.stop());pttStream=null}
+  if(rafId){cancelAnimationFrame(rafId);rafId=null}
+  if(actx){actx.close();actx=null}
+  $('ptt-btn').classList.remove('rec');$('ptt-lbl').textContent='HOLD TO SPEAK · RELEASE TO SEND';
+  setViz('');setReply('PROCESSING...');$('d-mic').className='d on';$('s-mic').textContent='PTT READY';
+}
+function drawViz(){
+  const bars=document.querySelectorAll('.bar'),data=new Uint8Array(analyser.frequencyBinCount);
+  function frame(){rafId=requestAnimationFrame(frame);analyser.getByteFrequencyData(data);
+    bars.forEach((b,i)=>{const v=data[Math.floor(i*data.length/bars.length)];b.style.height=Math.max(4,(v/255)*44)+'px';b.style.opacity=0.34+(v/255)*0.66})}
+  frame();
+}
+function onPTTStop(){
+  if(!pttChunks.length){setReply('NO AUDIO DETECTED — TRY AGAIN');return}
+  if(SR_CLS){
+    const r=new SR_CLS();r.lang='en-US';r.interimResults=false;r.maxAlternatives=3;let got=false;
+    r.onresult=e=>{got=true;let best=e.results[0][0].transcript;
+      for(let a=0;a<e.results[0].length;a++){if(hasWake(e.results[0][a].transcript)){best=e.results[0][a].transcript;break}}
+      $('ptt-heard').textContent='"'+best+'"';handle(best)};
+    r.onerror=r.onend=()=>{if(!got){setReply('VOICE UNAVAILABLE — USE TEXT INPUT BELOW');$('ti').focus()}};
+    try{r.start();return}catch(e){}
+  }
+  setReply('VOICE UNAVAILABLE — USE TEXT INPUT BELOW');$('ti').focus();
+}
+
+/* ── TEXT INPUT ── */
+function submitText(){
+  unlockAudio();const v=$('ti').value.trim();if(!v)return;$('ti').value='';handle(v);
+}
+$('ti').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();submitText()}});
+$('api-in').addEventListener('keydown',e=>{if(e.key==='Enter')saveKey()});
+
+/* ── TASKS ── */
+function addTask(task){tasks.unshift(task);save();renderTasks();updateBar();if(task.at)schedRem(task)}
+function schedRem(task){const d=new Date(task.at)-Date.now();if(d<=0){fireReminder(task.text);return}timers[task.id]=setTimeout(()=>fireReminder(task.text),d)}
+function toggleDone(id){tasks=tasks.map(t=>t.id===id?{...t,done:!t.done}:t);save();renderTasks();updateBar()}
+function delTask(id){clearTimeout(timers[id]);delete timers[id];tasks=tasks.filter(t=>t.id!==id);save();renderTasks();updateBar()}
+function save(){localStorage.setItem('spydee_v4',JSON.stringify(tasks))}
+function rehydrate(){tasks.forEach(t=>{t.at=t.at?new Date(t.at):null;if(t.at&&!t.done&&t.at>new Date())schedRem(t)})}
+
+function filt(f,btn){filtMode=f;document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderTasks()}
+function renderTasks(){
+  const list=$('tlist');let f=tasks;
+  if(filtMode==='pending')f=tasks.filter(t=>!t.done);
+  if(filtMode==='done')f=tasks.filter(t=>t.done);
+  if(!f.length){list.innerHTML=`<div class="empty">◈ ${filtMode==='done'?'NO COMPLETED TASKS':'NO TASKS IN QUEUE'}<br>SPEAK OR TYPE TO BEGIN</div>`;return}
+  list.innerHTML=f.map(t=>`<div class="tc ${urg(t)} ${t.done?'done':''}">
+    <div class="chk ${t.done?'y':''}" onclick="toggleDone(${t.id})"><span class="ck">✓</span></div>
+    <div class="tb"><div class="tt">${esc(t.text)}</div>
+    <div class="tm"><span class="ts">${fmtMeta(t)}</span>${bdg(t)}</div></div>
+    <button class="tdel" onclick="delTask(${t.id})">✕</button></div>`).join('');
+}
+function urg(t){if(t.done||!t.at)return'';const m=(new Date(t.at)-Date.now())/60000;return m<60?'urg':m<240?'soon':''}
+function bdg(t){
+  if(t.done)return'<span class="badge bd">DONE</span>';
+  if(!t.at)return'<span class="badge bn">NO REMINDER</span>';
+  const m=(new Date(t.at)-Date.now())/60000;
+  if(m<0)return'<span class="badge bu">OVERDUE</span>';
+  if(m<60)return'<span class="badge bu">SOON</span>';
+  if(m<240)return'<span class="badge bw">TODAY</span>';
+  return'<span class="badge bn">SCHEDULED</span>';
+}
+function fmtMeta(t){let s='Added '+fmt(new Date(t.created));if(t.at)s+=' · Reminder: '+fmt(new Date(t.at));return s}
+function fmt(d){return new Date(d).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true})}
+function updateBar(){const a=tasks.filter(t=>!t.done).length;$('s-task').textContent=a+' TASK'+(a!==1?'S':'');$('t-ct').textContent=a+' ACTIVE'}
+
+/* ── BOOT ── */
+renderTasks();updateBar();rehydrate();
+if(groqKey)$('api-in').value=groqKey;
+checkCorsPanel();
+
+setTimeout(async()=>{
+  const useSR=HAS_SR&&!IS_IOS&&!IS_FF;
+  if(useSR)initSR();else initPTT();
+  if(groqKey)verifyKey();
+
+  let g=`${USER}, all systems are nominal. ${ME} is fully operational and at your service.`;
+  if(groqKey&&!IS_FILE){
+    try{g=await callGroq([{role:'user',content:'Give a single elegant Jarvis-style boot greeting. One sentence.'}],70)}catch(e){}
+  }
+  setReply(g);addMsg('s',g);
+  const hint=useSR?'Say "Hey Spydee" to activate · or type below.':'Hold the mic to speak · or type below.';
+  toast('SPYDEE ONLINE',hint);
+  speak(g);
+},900);
+</script>
+</body>
+</html>
